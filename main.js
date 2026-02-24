@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
-import { readFile, writeFile } from 'fs/promises';
+import { readFile, writeFile, copyFile } from 'fs/promises';
+import { existsSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { runBuild } from './build.js';
@@ -34,6 +35,25 @@ app.on('window-all-closed', () => {
 
 ipcMain.handle('load-config', async () => {
   try {
+    /** @type {boolean} */
+    const envExists = existsSync('.env');
+    if (!envExists) {
+      /** @type {boolean} */
+      const exampleExists = existsSync('example.env');
+      if (exampleExists) {
+        await copyFile('example.env', '.env');
+      } else {
+        console.warn('example.env not found! Creating an empty .env file.');
+        await writeFile('.env', '');
+      }
+    }
+
+    /** @type {boolean} */
+    const wpExists = existsSync('wallpapers.json');
+    if (!wpExists) {
+      await writeFile('wallpapers.json', '[]');
+    }
+
     /** @type {string} */
     const envData = await readFile('.env', 'utf-8');
     /** @type {string} */
@@ -44,7 +64,7 @@ ipcMain.handle('load-config', async () => {
       wallpapers: JSON.parse(wpData),
     };
   } catch (error) {
-    console.error('Error reading configs:', error);
+    console.error('Error reading or creating configs:', error);
     return null;
   }
 });
