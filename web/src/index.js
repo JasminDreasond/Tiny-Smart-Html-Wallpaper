@@ -160,7 +160,9 @@ const createMediaElement = (wp) => {
   /** @type {string} */
   const displayMode = wp.display || process.env.DEFAULT_DISPLAY;
   /** @type {string} */
-  const source = wp.type === 'web' ? wp.file : `./assets/${wp.file}`;
+  const basePath = process.env.ASSETS_PATH || '../web/assets/';
+  /** @type {string} */
+  const source = wp.type === 'web' ? wp.file : `${basePath}${wp.file}`;
 
   if (wp.type === 'video') {
     el = document.createElement('video');

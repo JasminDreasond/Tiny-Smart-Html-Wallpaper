@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Smart Wallpaper Configurator</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <aside class="sidebar">
+        <h2>Engine Settings</h2>
+        <div id="env-form" class="form-grid"></div>
+        <button id="btn-submit" class="primary-btn">Save & Build</button>
+        <p id="status-msg"></p>
+      </aside>
+
+      <main class="content">
+        <div class="header-row">
+          <h2>Wallpapers Database</h2>
+          <button id="btn-add-wp" class="secondary-btn">+ Add Media</button>
+        </div>
+        <div id="wallpapers-list" class="cards-grid"></div>
+      </main>
+    </div>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

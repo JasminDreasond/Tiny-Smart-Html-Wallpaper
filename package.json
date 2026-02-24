@@ -3,14 +3,19 @@
   "version": "1.0.0",
   "repository": "https://github.com/JasminDreasond/Tiny-Desktop-SmartWallpaper.git",
   "type": "module",
+  "main": "main.js",
   "license": "AGPL-3.0-only",
   "scripts": {
+    "start": "electron .",
     "build": "node build.js",
-    "prettier": "prettier --write ./web/src/* && prettier --write ./build.js"
+    "prettier": "prettier --write ./web/src/* && prettier --write ./gui/* && prettier --write ./build.js && prettier --write ./main.js && prettier --write ./preload.js"
   },
   "dependencies": {
     "dotenv": "^17.3.1",
     "esbuild": "^0.27.3",
     "prettier": "^3.8.1"
+  },
+  "devDependencies": {
+    "electron": "^40.6.0"
   }
 }

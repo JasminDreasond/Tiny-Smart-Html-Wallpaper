@@ -1,0 +1,123 @@
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+body {
+  margin: 0;
+  background-color: #1e1e2e;
+  color: #cdd6f4;
+  overflow: hidden;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 350px;
+  background-color: #181825;
+  padding: 20px;
+  overflow-y: auto;
+  border-right: 1px solid #313244;
+}
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+h2 {
+  margin-top: 0;
+  color: #89b4fa;
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.input-group label {
+  font-size: 0.9em;
+  font-weight: bold;
+  color: #a6adc8;
+}
+.input-group input {
+  padding: 8px;
+  background-color: #313244;
+  border: 1px solid #45475a;
+  color: #cdd6f4;
+  border-radius: 4px;
+}
+
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+.primary-btn {
+  background-color: #89b4fa;
+  color: #11111b;
+  width: 100%;
+  font-size: 1.1em;
+}
+.primary-btn:hover {
+  background-color: #b4befe;
+}
+.secondary-btn {
+  background-color: #a6e3a1;
+  color: #11111b;
+}
+.secondary-btn:hover {
+  background-color: #94e2d5;
+}
+.danger-btn {
+  background-color: #f38ba8;
+  color: #11111b;
+  padding: 5px 10px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+.card {
+  background-color: #313244;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #45475a;
+  position: relative;
+}
+.card input {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 5px;
+  background: #1e1e2e;
+  border: 1px solid #45475a;
+  color: #fff;
+}
+.card-actions {
+  text-align: right;
+}
+
+#status-msg {
+  text-align: center;
+  font-weight: bold;
+  margin-top: 15px;
+}
+.success {
+  color: #a6e3a1;
+}
+.error {
+  color: #f38ba8;
+}
