@@ -17,6 +17,8 @@ const wallpapers = __WALLPAPERS__;
 let currentIndex = 0;
 /** @type {boolean} */
 let isFirstLoad = true;
+/** @type {Wallpaper | null} */
+let lastShownWallpaper = null;
 
 /**
  * @returns {string}
@@ -223,17 +225,38 @@ const updateWallpaper = () => {
   /** @type {Wallpaper[]} */
   const priorityWps = findPriorityWallpaper(wallpapers);
 
+  if (priorityWps.length === 0) return;
+
   if (process.env.ENGINE_MODE === 'single') {
-    if (isFirstLoad) renderWallpaper(priorityWps[0]);
+    if (isFirstLoad) {
+      lastShownWallpaper = priorityWps[0];
+      renderWallpaper(lastShownWallpaper);
+    }
     return;
   }
 
   if (process.env.SLIDESHOW_ORDER === 'random') {
     /** @type {Wallpaper} */
     const randomWp = getRandomWallpaper(priorityWps);
+    lastShownWallpaper = randomWp;
     renderWallpaper(randomWp);
   } else {
-    renderWallpaper(priorityWps[currentIndex]);
+    if (lastShownWallpaper !== null) {
+      /** @type {number} */
+      const lastIndex = priorityWps.findIndex((wp) => wp.file === lastShownWallpaper.file);
+
+      if (lastIndex !== -1) {
+        currentIndex = (lastIndex + 1) % priorityWps.length;
+      } else {
+        currentIndex = currentIndex % priorityWps.length;
+      }
+    }
+
+    /** @type {Wallpaper} */
+    const nextWp = priorityWps[currentIndex];
+    lastShownWallpaper = nextWp;
+    renderWallpaper(nextWp);
+
     currentIndex = (currentIndex + 1) % priorityWps.length;
   }
 };
