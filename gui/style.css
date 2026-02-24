@@ -3,22 +3,28 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Modern Dark Theme with Vibrant Accents */
 :root {
-  --background-color: #1e1e2e;
-  --sidebar-color: #181825;
+  /* Deep dark zinc backgrounds for depth */
+  --background-color: #09090b;
+  --sidebar-color: #040405;
 
-  --card-background-color: #313244;
-  --card-text-color: #fff;
-  --btn-text-color: #11111b;
-  --card-border-color: #45475a;
-  --text-color: #cdd6f4;
-  --label-color: #a6adc8;
+  /* Elevated card colors */
+  --card-background-color: #18181b;
+  --card-border-color: #27272a;
 
-  --primary-color: #89b4fa;
-  --primary-hover-color: #b4befe;
-  --secondary-color: #a6e3a1;
-  --secondary-hover-color: #94e2d5;
-  --danger-color: #f38ba8;
+  /* Text colors */
+  --card-text-color: #fafafa;
+  --btn-text-color: #ffffff;
+  --text-color: #e4e4e7;
+  --label-color: #a1a1aa;
+
+  /* Vibrant modern accents */
+  --primary-color: #8b5cf6; /* Vibrant Violet */
+  --primary-hover-color: #a78bfa;
+  --secondary-color: #14b8a6; /* Vibrant Teal/Cyan */
+  --secondary-hover-color: #2dd4bf;
+  --danger-color: #f43f5e; /* Vibrant Rose */
 }
 
 body {
@@ -38,8 +44,9 @@ body {
   background-color: var(--sidebar-color);
   padding: 20px;
   overflow-y: auto;
-  border-right: 1px solid var(--card-background-color);
+  border-right: 1px solid var(--card-border-color);
 }
+
 .content {
   flex: 1;
   padding: 20px;
@@ -57,22 +64,32 @@ h2 {
   gap: 15px;
   margin-bottom: 20px;
 }
+
 .input-group {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
+
 .input-group label {
   font-size: 0.9em;
   font-weight: bold;
   color: var(--label-color);
 }
+
 .input-group input {
   padding: 8px;
-  background-color: var(--card-background-color);
+  /* Darker input background for better modern contrast */
+  background-color: var(--background-color);
   border: 1px solid var(--card-border-color);
   color: var(--text-color);
-  border-radius: 4px;
+  border-radius: 6px;
+  transition: border-color 0.2s;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
 }
 
 button {
@@ -81,28 +98,44 @@ button {
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
-  transition: 0.2s;
+  transition: all 0.2s ease;
 }
+
 .primary-btn {
   background-color: var(--primary-color);
   color: var(--btn-text-color);
   width: 100%;
   font-size: 1.1em;
+  /* Subtle modern glow effect */
+  box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.3);
 }
+
 .primary-btn:hover {
   background-color: var(--primary-hover-color);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px 0 rgba(139, 92, 246, 0.4);
 }
+
 .secondary-btn {
   background-color: var(--secondary-color);
   color: var(--btn-text-color);
+  box-shadow: 0 4px 14px 0 rgba(20, 184, 166, 0.3);
 }
+
 .secondary-btn:hover {
   background-color: var(--secondary-hover-color);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px 0 rgba(20, 184, 166, 0.4);
 }
+
 .danger-btn {
   background-color: var(--danger-color);
   color: var(--btn-text-color);
   padding: 5px 10px;
+}
+
+.danger-btn:hover {
+  opacity: 0.9;
 }
 
 .cards-grid {
@@ -110,21 +143,40 @@ button {
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 15px;
 }
+
 .card {
   background-color: var(--card-background-color);
   padding: 15px;
-  border-radius: 8px;
+  /* Softer radius for modern UI */
+  border-radius: 12px;
   border: 1px solid var(--card-border-color);
   position: relative;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
+
+.card:hover {
+  transform: translateY(-2px);
+  /* Depth added on hover */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
 .card input {
   width: 100%;
   margin-bottom: 10px;
-  padding: 5px;
+  padding: 8px;
   background: var(--background-color);
   border: 1px solid var(--card-border-color);
   color: var(--card-text-color);
+  border-radius: 6px;
 }
+
+.card input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
 .card-actions {
   text-align: right;
 }
@@ -134,9 +186,11 @@ button {
   font-weight: bold;
   margin-top: 15px;
 }
+
 .success {
   color: var(--secondary-color);
 }
+
 .error {
   color: var(--danger-color);
 }
