@@ -14,11 +14,9 @@
   "keywords": [
     "electronjs",
     "wallpaper-engine",
-    "dynamic-wallpaper",
     "desktop-customization",
-    "nodejs",
+    "slideshow-maker",
     "esbuild",
-    "javascript",
     "slideshow"
   ],
   "scripts": {
