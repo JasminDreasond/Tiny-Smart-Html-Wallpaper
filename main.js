@@ -29,6 +29,9 @@ const setupWorkingDirectory = () => {
     }
 
     execDir = path.join(execDir, './resources/app.asar/');
+  } else {
+    workDir = process.cwd();
+    execDir = workDir;
   }
 };
 
@@ -125,7 +128,7 @@ ipcMain.handle('save-and-build', async (event, data) => {
     );
 
     const esbuild = await import(
-      path.join(execDir, '../app.asar.unpacked/node_modules/esbuild-wasm/lib/main.js')
+      app.isPackaged ? path.join(execDir, '../app.asar.unpacked/node_modules/esbuild-wasm/lib/main.js') : 'esbuild'
     );
 
     /** @type {any} */
