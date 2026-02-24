@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
+import { platform } from 'os';
 import { readFile, writeFile, copyFile } from 'fs/promises';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
@@ -35,17 +36,27 @@ const setupWorkingDirectory = () => {
  * @returns {Promise<void>}
  */
 const createWindow = async () => {
+  const icon = path.join(__dirname, 'favicon/favicon.png');
+
   /** @type {BrowserWindow} */
   const win = new BrowserWindow({
     width: 1000,
     height: 800,
     backgroundColor: '#1e1e2e',
+    icon,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
   });
+
+  if (platform() === 'win32')
+    win.setAppDetails({
+      appId: 'smart-html-wallpaper-engine',
+      appIconPath: icon,
+      relaunchDisplayName: 'Smart Html Wallpaper Configurator',
+    });
 
   await win.loadFile('gui/index.html');
 };
