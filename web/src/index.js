@@ -19,6 +19,8 @@ let currentIndex = 0;
 let isFirstLoad = true;
 /** @type {Wallpaper | null} */
 let lastShownWallpaper = null;
+/** @type {string} */
+let lastPriorityHash = '';
 
 /**
  * @returns {string}
@@ -100,6 +102,14 @@ const findPriorityWallpaper = (list) => {
 
     return isDateMatch || isTimeMatch;
   });
+};
+
+/**
+ * @param {Wallpaper[]} list
+ * @returns {string}
+ */
+const getListHash = (list) => {
+  return list.map((wp) => wp.file).join('|');
 };
 
 /**
@@ -225,6 +235,8 @@ const updateWallpaper = () => {
   /** @type {Wallpaper[]} */
   const priorityWps = findPriorityWallpaper(wallpapers);
 
+  lastPriorityHash = getListHash(priorityWps);
+
   if (priorityWps.length === 0) return;
 
   if (process.env.ENGINE_MODE === 'single') {
@@ -266,10 +278,71 @@ const updateWallpaper = () => {
  */
 const initEngine = () => {
   updateWallpaper();
+
+  /** @type {boolean} */
+  const isListChangeOnly = process.env.ON_LIST_CHANGE_ONLY === 'true';
+
+  if (isListChangeOnly) {
+    setInterval(() => {
+      /** @type {Wallpaper[]} */
+      const currentList = findPriorityWallpaper(wallpapers);
+      /** @type {string} */
+      const currentHash = getListHash(currentList);
+
+      if (currentHash !== lastPriorityHash) {
+        updateWallpaper();
+      }
+    }, 60000);
+    return;
+  }
+
   if (process.env.ENGINE_MODE === 'slideshow') {
+    /** @type {boolean} */
+    const hasFixedClock = Boolean(process.env.FIXED_CLOCK_INTERVAL);
     /** @type {number} */
-    const interval = parseInt(process.env.SLIDESHOW_INTERVAL, 10) || 60000;
-    setInterval(updateWallpaper, interval);
+    const standardInterval =
+      parseInt(process.env.SLIDESHOW_INTERVAL, 10) || (hasFixedClock ? 0 : 60000);
+
+    if (standardInterval > 0) {
+      setInterval(updateWallpaper, standardInterval);
+    }
+
+    if (hasFixedClock) {
+      /** @type {string} */
+      const fixedClockStr = process.env.FIXED_CLOCK_INTERVAL || '';
+      /** @type {string[]} */
+      const parts = fixedClockStr.split(':');
+      /** @type {number} */
+      const intervalMins = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+
+      if (intervalMins > 0) {
+        /** @type {number} */
+        const intervalMs = intervalMins * 60 * 1000;
+
+        /**
+         * @returns {void}
+         */
+        const syncFixedClock = () => {
+          /** @type {Date} */
+          const now = new Date();
+          /** @type {number} */
+          const currentMs =
+            now.getHours() * 3600000 +
+            now.getMinutes() * 60000 +
+            now.getSeconds() * 1000 +
+            now.getMilliseconds();
+          /** @type {number} */
+          const msToNextTick = intervalMs - (currentMs % intervalMs);
+
+          setTimeout(() => {
+            updateWallpaper();
+            setInterval(updateWallpaper, intervalMs);
+          }, msToNextTick);
+        };
+
+        syncFixedClock();
+      }
+    }
   }
 };
 

@@ -37,6 +37,12 @@ A highly customizable, lightweight Node.js wallpaper engine built with esbuild. 
 - `TRANSITION_DURATION`: Time in milliseconds.
 - `ANIMATE_FIRST_LOAD`: If "true", the very first wallpaper will also animate in.
 
+### Advanced Timing Triggers (`.env`)
+You can control exactly WHEN the engine checks for the next wallpaper:
+- `SLIDESHOW_INTERVAL`: Standard interval in milliseconds (e.g., `60000` for 1 minute).
+- `FIXED_CLOCK_INTERVAL`: Set to perfectly sync with the clock (e.g., `"01:30"` checks exactly every 1 hour and 30 minutes from the start of the day). Both intervals can run simultaneously!
+- `ON_LIST_CHANGE_ONLY`: If set to `"true"`, it disables all intervals above. The engine will check quietly every minute in the background, and will ONLY animate and update the screen if a wallpaper enters or leaves the active time/date range.
+
 ### Individual Settings (`wallpapers.json`)
 You can define specific properties for each wallpaper:
 - `type`: Must be `"image"`, `"video"`, or `"web"`.
@@ -46,5 +52,11 @@ You can define specific properties for each wallpaper:
 - `volume`: 0.0 to 1.0 (video only).
 - `animation`: Overrides the global default animation.
 - `weight`: Number to define random probability. Default is 1. A weight of 10 means it's 10x more likely to appear.
+
+### 🖥️ Tested Environments
+
+This engine is designed to run beautifully as a web-based desktop background. It has been successfully tested on KDE Plasma using the following plugin:
+
+* [HTML Wallpaper (KDE Store)](https://store.kde.org/p/1324580)
 
 Enjoy your new dynamic desktop!

@@ -29,6 +29,8 @@ const buildProject = async () => {
       'process.env.TRANSITION_DURATION': JSON.stringify(process.env.TRANSITION_DURATION),
       'process.env.DEFAULT_ANIMATION': JSON.stringify(process.env.DEFAULT_ANIMATION),
       'process.env.ANIMATE_FIRST_LOAD': JSON.stringify(process.env.ANIMATE_FIRST_LOAD),
+      'process.env.FIXED_CLOCK_INTERVAL': JSON.stringify(process.env.FIXED_CLOCK_INTERVAL),
+      'process.env.ON_LIST_CHANGE_ONLY': JSON.stringify(process.env.ON_LIST_CHANGE_ONLY),
       __WALLPAPERS__: wallpapersData,
     },
   });
