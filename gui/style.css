@@ -3,14 +3,14 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Modern Dark Theme with Vibrant Accents */
+/* Modern Dark Theme with Vibrant Gradients */
 :root {
-  /* Deep dark zinc backgrounds for depth */
+  /* Deep dark zinc backgrounds */
   --background-color: #09090b;
-  --sidebar-color: #040405;
+  --sidebar-color: rgba(4, 4, 5, 0.6);
 
   /* Elevated card colors */
-  --card-background-color: #18181b;
+  --card-background-color: rgba(24, 24, 27, 0.8);
   --card-border-color: #27272a;
 
   /* Text colors */
@@ -19,19 +19,25 @@
   --text-color: #e4e4e7;
   --label-color: #a1a1aa;
 
-  /* Vibrant modern accents */
-  --primary-color: #8b5cf6; /* Vibrant Violet */
-  --primary-hover-color: #a78bfa;
-  --secondary-color: #14b8a6; /* Vibrant Teal/Cyan */
-  --secondary-hover-color: #2dd4bf;
-  --danger-color: #f43f5e; /* Vibrant Rose */
+  /* Vibrant modern gradients */
+  --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
+  --gradient-primary-hover: linear-gradient(135deg, #a78bfa 0%, #e879f9 100%);
+  --gradient-secondary: linear-gradient(135deg, #14b8a6 0%, #3b82f6 100%);
+  --gradient-secondary-hover: linear-gradient(135deg, #2dd4bf 0%, #60a5fa 100%);
+  --danger-color: #f43f5e;
+
+  /* App subtle background glow */
+  --app-bg-gradient: radial-gradient(circle at 0% 0%, #1e1b4b 0%, #09090b 50%);
 }
 
 body {
   margin: 0;
-  background-color: var(--background-color);
+  background: var(--background-color);
+  background-image: var(--app-bg-gradient);
   color: var(--text-color);
   overflow: hidden;
+  /* Smooth backdrop for the whole app */
+  backdrop-filter: blur(10px);
 }
 
 .app-container {
@@ -42,6 +48,8 @@ body {
 .sidebar {
   width: 350px;
   background-color: var(--sidebar-color);
+  /* Frosted glass effect for the sidebar */
+  backdrop-filter: blur(12px);
   padding: 20px;
   overflow-y: auto;
   border-right: 1px solid var(--card-border-color);
@@ -55,7 +63,12 @@ body {
 
 h2 {
   margin-top: 0;
-  color: var(--primary-color);
+  /* Text gradient clip effect */
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
 }
 
 .form-grid {
@@ -79,17 +92,19 @@ h2 {
 
 .input-group input {
   padding: 8px;
-  /* Darker input background for better modern contrast */
-  background-color: var(--background-color);
+  background-color: rgba(9, 9, 11, 0.6);
   border: 1px solid var(--card-border-color);
   color: var(--text-color);
   border-radius: 6px;
-  transition: border-color 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .input-group input:focus {
   outline: none;
-  border-color: var(--primary-color);
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
 }
 
 button {
@@ -98,34 +113,33 @@ button {
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .primary-btn {
-  background-color: var(--primary-color);
+  background: var(--gradient-primary);
   color: var(--btn-text-color);
   width: 100%;
   font-size: 1.1em;
-  /* Subtle modern glow effect */
   box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.3);
 }
 
 .primary-btn:hover {
-  background-color: var(--primary-hover-color);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px 0 rgba(139, 92, 246, 0.4);
+  background: var(--gradient-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 rgba(139, 92, 246, 0.5);
 }
 
 .secondary-btn {
-  background-color: var(--secondary-color);
+  background: var(--gradient-secondary);
   color: var(--btn-text-color);
   box-shadow: 0 4px 14px 0 rgba(20, 184, 166, 0.3);
 }
 
 .secondary-btn:hover {
-  background-color: var(--secondary-hover-color);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px 0 rgba(20, 184, 166, 0.4);
+  background: var(--gradient-secondary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 rgba(20, 184, 166, 0.5);
 }
 
 .danger-btn {
@@ -147,34 +161,38 @@ button {
 .card {
   background-color: var(--card-background-color);
   padding: 15px;
-  /* Softer radius for modern UI */
   border-radius: 12px;
   border: 1px solid var(--card-border-color);
   position: relative;
   transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+    transform 0.3s,
+    box-shadow 0.3s,
+    border-color 0.3s;
+  /* Subtle inner glow for depth */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  /* Depth added on hover */
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transform: translateY(-4px);
+  /* Top border gradient illusion on hover */
+  border-color: #8b5cf6;
+  box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.3);
 }
 
 .card input {
   width: 100%;
   margin-bottom: 10px;
   padding: 8px;
-  background: var(--background-color);
+  background: rgba(9, 9, 11, 0.6);
   border: 1px solid var(--card-border-color);
   color: var(--card-text-color);
   border-radius: 6px;
+  transition: border-color 0.2s;
 }
 
 .card input:focus {
   outline: none;
-  border-color: var(--primary-color);
+  border-color: #8b5cf6;
 }
 
 .card-actions {
@@ -188,7 +206,8 @@ button {
 }
 
 .success {
-  color: var(--secondary-color);
+  /* Adjusted for better visibility on dark backgrounds */
+  color: #2dd4bf;
 }
 
 .error {

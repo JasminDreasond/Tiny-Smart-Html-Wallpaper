@@ -128,7 +128,9 @@ ipcMain.handle('save-and-build', async (event, data) => {
     );
 
     const esbuild = await import(
-      app.isPackaged ? path.join(execDir, '../app.asar.unpacked/node_modules/esbuild-wasm/lib/main.js') : 'esbuild'
+      app.isPackaged
+        ? path.join(execDir, '../app.asar.unpacked/node_modules/esbuild-wasm/lib/main.js')
+        : 'esbuild'
     );
 
     /** @type {any} */
