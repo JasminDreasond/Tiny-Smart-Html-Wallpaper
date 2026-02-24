@@ -5,10 +5,12 @@
   "type": "module",
   "license": "AGPL-3.0-only",
   "scripts": {
-    "build": "node build.js"
+    "build": "node build.js",
+    "prettier": "prettier --write ./web/src/*"
   },
   "dependencies": {
     "dotenv": "^17.3.1",
-    "esbuild": "^0.27.3"
+    "esbuild": "^0.27.3",
+    "prettier": "^3.8.1"
   }
 }
