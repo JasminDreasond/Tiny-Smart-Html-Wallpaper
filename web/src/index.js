@@ -82,7 +82,7 @@ const isTimeInRange = (range, current) => {
 
 /**
  * @param {Wallpaper[]} list
- * @returns {Wallpaper | undefined}
+ * @returns {Wallpaper[]}
  */
 const findPriorityWallpaper = (list) => {
   /** @type {string} */
@@ -90,11 +90,11 @@ const findPriorityWallpaper = (list) => {
   /** @type {string} */
   const now = getCurrentTimeStr();
 
-  return list.find((wp) => {
+  return list.filter((wp) => {
     /** @type {boolean} */
     const isDateMatch = wp.date === today;
     /** @type {boolean} */
-    const isTimeMatch = wp.time ? isTimeInRange(wp.time, now) : false;
+    const isTimeMatch = wp.time ? isTimeInRange(wp.time, now) : true;
 
     return isDateMatch || isTimeMatch;
   });
@@ -220,26 +220,21 @@ const renderWallpaper = (wallpaper) => {
  * @returns {void}
  */
 const updateWallpaper = () => {
-  /** @type {Wallpaper | undefined} */
-  const priorityWp = findPriorityWallpaper(wallpapers);
-
-  if (priorityWp) {
-    renderWallpaper(priorityWp);
-    return;
-  }
+  /** @type {Wallpaper[]} */
+  const priorityWps = findPriorityWallpaper(wallpapers);
 
   if (process.env.ENGINE_MODE === 'single') {
-    if (isFirstLoad) renderWallpaper(wallpapers[0]);
+    if (isFirstLoad) renderWallpaper(priorityWps[0]);
     return;
   }
 
   if (process.env.SLIDESHOW_ORDER === 'random') {
     /** @type {Wallpaper} */
-    const randomWp = getRandomWallpaper(wallpapers);
+    const randomWp = getRandomWallpaper(priorityWps);
     renderWallpaper(randomWp);
   } else {
-    renderWallpaper(wallpapers[currentIndex]);
-    currentIndex = (currentIndex + 1) % wallpapers.length;
+    renderWallpaper(priorityWps[currentIndex]);
+    currentIndex = (currentIndex + 1) % priorityWps.length;
   }
 };
 
