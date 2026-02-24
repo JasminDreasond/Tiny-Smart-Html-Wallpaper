@@ -1,12 +1,26 @@
 {
   "name": "smart-html-wallpaper-engine",
   "version": "1.0.0",
-  "repository": "https://github.com/JasminDreasond/Tiny-Desktop-SmartWallpaper.git",
+  "repository": "https://github.com/Tiny-Essentials/Tiny-Smart-Web-Wallpaper.git",
+  "bugs": {
+    "url": "https://github.com/Tiny-Essentials/Tiny-Smart-Web-Wallpaper/issues"
+  },
+  "homepage": "https://github.com/Tiny-Essentials/Tiny-Smart-Web-Wallpaper#readme",
   "description": "A smart html wallpaper engine and configurator.",
   "author": "Yasmin Seidel (JasminDreasond)",
   "type": "module",
   "main": "main.js",
   "license": "AGPL-3.0-only",
+  "keywords": [
+    "electronjs",
+    "wallpaper-engine",
+    "dynamic-wallpaper",
+    "desktop-customization",
+    "nodejs",
+    "esbuild",
+    "javascript",
+    "slideshow"
+  ],
   "scripts": {
     "start": "electron .",
     "build:web": "node build.js",

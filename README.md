@@ -74,6 +74,9 @@ You can compile the configurator into a standalone executable (AppImage for Linu
 * `wallpapers.json`: The database array holding individual media properties.
 * `gui/`: Contains the Electron interface to manage everything safely.
 
+## 🐧 Compatibility
+To be completely transparent, this software was developed and fully tested exclusively on **Linux Kubuntu**. While the build system supports compiling for Windows (.exe) and macOS (.dmg), the primary environment and guaranteed stable experience is on Kubuntu.
+
 ### 🖥️ Tested Environments
 
 We want to ensure your dynamic wallpapers run perfectly! Currently, this project has been personally tested and works on:
