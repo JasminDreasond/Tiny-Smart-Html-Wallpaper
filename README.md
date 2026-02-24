@@ -83,7 +83,11 @@ We want to ensure your dynamic wallpapers run perfectly! Currently, this project
 
 * [HTML Wallpaper (KDE Store)](https://store.kde.org/p/1324580)
 
-Enjoy your new dynamic desktop!
+---
+
+## Enjoy your new dynamic desktop!
+
+<center><img src="./web/example.png" alt="example"></center>
 
 ---
 
