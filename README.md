@@ -1,6 +1,10 @@
 # 🌟 Smart Wallpaper Engine
 
-A highly customizable, lightweight Node.js wallpaper engine built with esbuild. Set up your wallpapers to change based on specific times, dates, or just let them loop in a beautiful slideshow!
+A highly customizable, lightweight Node.js wallpaper engine built with esbuild. Set up your wallpapers to change based on specific times, dates, and enjoy beautiful transitions between images, videos, and web pages!
+
+- **Media Support**: Load images, videos (with volume control), and web pages (iframes).
+- **Animations**: Configurable transitions (`fade`, `slide_left`, `slide_right`, `zoom_in`).
+- **Scheduling**: Priority wallpapers for specific times or dates.
 
 ## 🚀 How to Use
 
@@ -25,5 +29,19 @@ A highly customizable, lightweight Node.js wallpaper engine built with esbuild. 
 - `cropped`: Original size, but centered.
 - `normal`: Stretches to fit the screen bounds.
 - `tiled`: Repeats the image across the screen.
+
+## 🛠️ Configuration
+
+### Global Settings (`.env`)
+- `ANIMATIONS_ENABLED`: Set to "true" to enable transitions.
+- `TRANSITION_DURATION`: Time in milliseconds.
+- `ANIMATE_FIRST_LOAD`: If "true", the very first wallpaper will also animate in.
+
+### Individual Settings (`wallpapers.json`)
+You can define specific properties for each wallpaper:
+- `type`: Must be `"image"`, `"video"`, or `"web"`.
+- `muted`: Boolean (video only).
+- `volume`: 0.0 to 1.0 (video only).
+- `animation`: Overrides the global default animation.
 
 Enjoy your new dynamic desktop!

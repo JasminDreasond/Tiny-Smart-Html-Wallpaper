@@ -8,14 +8,27 @@ html {
   overflow: hidden;
 }
 
-#wallpaper-container {
+#layer-container {
+  position: relative;
   width: 100%;
   height: 100%;
-  transition: background-image 0.5s ease-in-out;
 }
+
+.media-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  object-fit: cover; /* default fallback */
+}
+
+/* Display Modes for Images/Videos */
 
 /* Scaled and Cropped (Fills screen, cuts edges) */
 .display-scaled_cropped {
+  object-fit: cover;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -23,6 +36,7 @@ html {
 
 /* Scaled (Fits entirely in screen, shows borders if aspect ratio differs) */
 .display-scaled {
+  object-fit: contain;
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
@@ -30,6 +44,7 @@ html {
 
 /* Cropped (Original size, cuts whatever doesn't fit) */
 .display-cropped {
+  object-fit: none;
   background-size: auto;
   background-position: center;
   background-repeat: no-repeat;
@@ -37,6 +52,7 @@ html {
 
 /* Normal (Stretches to fill screen completely) */
 .display-normal {
+  object-fit: fill;
   background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
@@ -47,4 +63,59 @@ html {
   background-size: auto;
   background-position: center;
   background-repeat: repeat;
+}
+
+/* Animations */
+.anim-fade {
+  animation: fadeIn var(--transition-time) ease-in-out forwards;
+}
+.anim-slide_left {
+  animation: slideLeft var(--transition-time) ease-in-out forwards;
+}
+.anim-slide_right {
+  animation: slideRight var(--transition-time) ease-in-out forwards;
+}
+.anim-zoom_in {
+  animation: zoomIn var(--transition-time) ease-in-out forwards;
+}
+.anim-none {
+  opacity: 1;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideLeft {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideRight {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

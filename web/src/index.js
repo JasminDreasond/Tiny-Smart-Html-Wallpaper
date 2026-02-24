@@ -1,22 +1,31 @@
 /**
  * @typedef {Object} Wallpaper
  * @property {string} file
+ * @property {"image"|"video"|"web"} type
  * @property {string} [display]
  * @property {string | null} [time]
  * @property {string | null} [date]
+ * @property {boolean} [muted]
+ * @property {number} [volume]
+ * @property {string} [animation]
  */
 
 /** @type {Wallpaper[]} */
 const wallpapers = __WALLPAPERS__;
 /** @type {number} */
 let currentIndex = 0;
+/** @type {boolean} */
+let isFirstLoad = true;
 
 /**
  * @returns {string}
  */
 const getCurrentDateStr = () => {
+  /** @type {Date} */
   const date = new Date();
+  /** @type {string} */
   const month = String(date.getMonth() + 1).padStart(2, '0');
+  /** @type {string} */
   const day = String(date.getDate()).padStart(2, '0');
   return `${month}-${day}`;
 };
@@ -25,8 +34,11 @@ const getCurrentDateStr = () => {
  * @returns {string}
  */
 const getCurrentTimeStr = () => {
+  /** @type {Date} */
   const date = new Date();
+  /** @type {string} */
   const hours = String(date.getHours()).padStart(2, '0');
+  /** @type {string} */
   const minutes = String(date.getMinutes()).padStart(2, '0');
   return `${hours}:${minutes}`;
 };
@@ -36,10 +48,42 @@ const getCurrentTimeStr = () => {
  * @returns {Wallpaper | undefined}
  */
 const findPriorityWallpaper = (list) => {
+  /** @type {string} */
   const today = getCurrentDateStr();
+  /** @type {string} */
   const now = getCurrentTimeStr();
-
   return list.find((wp) => wp.date === today || wp.time === now);
+};
+
+/**
+ * @param {Wallpaper} wp
+ * @returns {HTMLElement}
+ */
+const createMediaElement = (wp) => {
+  /** @type {HTMLElement} */
+  let el;
+  /** @type {string} */
+  const displayMode = wp.display || process.env.DEFAULT_DISPLAY;
+  /** @type {string} */
+  const source = wp.type === 'web' ? wp.file : `./assets/${wp.file}`;
+
+  if (wp.type === 'video') {
+    el = document.createElement('video');
+    el.src = source;
+    el.autoplay = true;
+    el.loop = true;
+    el.muted = wp.muted !== undefined ? wp.muted : true;
+    el.volume = wp.volume !== undefined ? wp.volume : 1.0;
+  } else if (wp.type === 'web') {
+    el = document.createElement('iframe');
+    el.src = source;
+  } else {
+    el = document.createElement('div');
+    el.style.backgroundImage = `url('${source}')`;
+  }
+
+  el.classList.add('media-layer', `display-${displayMode}`);
+  return el;
 };
 
 /**
@@ -47,17 +91,53 @@ const findPriorityWallpaper = (list) => {
  * @returns {void}
  */
 const renderWallpaper = (wallpaper) => {
-  const container = document.getElementById('wallpaper-container');
-  const displayMode = wallpaper.display || process.env.DEFAULT_DISPLAY;
+  /** @type {HTMLElement | null} */
+  const container = document.getElementById('layer-container');
+  if (!container) return;
 
-  container.style.backgroundImage = `url('./assets/${wallpaper.file}')`;
-  container.className = `display-${displayMode}`;
+  /** @type {HTMLElement} */
+  const newLayer = createMediaElement(wallpaper);
+
+  /** @type {boolean} */
+  const animationsEnabled = process.env.ANIMATIONS_ENABLED === 'true';
+  /** @type {string} */
+  const transitionTime = process.env.TRANSITION_DURATION || '1000';
+  /** @type {string} */
+  const animType = wallpaper.animation || process.env.DEFAULT_ANIMATION;
+
+  /** @type {boolean} */
+  const shouldAnimate =
+    animationsEnabled && (!isFirstLoad || process.env.ANIMATE_FIRST_LOAD === 'true');
+
+  if (shouldAnimate) {
+    newLayer.style.setProperty('--transition-time', `${transitionTime}ms`);
+    newLayer.classList.add(`anim-${animType}`);
+  } else {
+    newLayer.classList.add('anim-none');
+  }
+
+  container.appendChild(newLayer);
+
+  /** @type {NodeListOf<Element>} */
+  const oldLayers = container.querySelectorAll('.media-layer:not(:last-child)');
+
+  if (oldLayers.length > 0) {
+    setTimeout(
+      () => {
+        oldLayers.forEach((layer) => layer.remove());
+      },
+      parseInt(transitionTime, 10),
+    );
+  }
+
+  isFirstLoad = false;
 };
 
 /**
  * @returns {void}
  */
 const updateWallpaper = () => {
+  /** @type {Wallpaper | undefined} */
   const priorityWp = findPriorityWallpaper(wallpapers);
 
   if (priorityWp) {
@@ -66,11 +146,12 @@ const updateWallpaper = () => {
   }
 
   if (process.env.ENGINE_MODE === 'single') {
-    renderWallpaper(wallpapers[0]);
+    if (isFirstLoad) renderWallpaper(wallpapers[0]);
     return;
   }
 
   if (process.env.SLIDESHOW_ORDER === 'random') {
+    /** @type {number} */
     const randomIndex = Math.floor(Math.random() * wallpapers.length);
     renderWallpaper(wallpapers[randomIndex]);
   } else {
@@ -84,8 +165,11 @@ const updateWallpaper = () => {
  */
 const initEngine = () => {
   updateWallpaper();
-  const interval = parseInt(process.env.SLIDESHOW_INTERVAL, 10) || 60000;
-  setInterval(updateWallpaper, interval);
+  if (process.env.ENGINE_MODE === 'slideshow') {
+    /** @type {number} */
+    const interval = parseInt(process.env.SLIDESHOW_INTERVAL, 10) || 60000;
+    setInterval(updateWallpaper, interval);
+  }
 };
 
 initEngine();

@@ -1,20 +1,42 @@
 [
   {
     "file": "mountains.jpg",
+    "type": "image",
     "display": "scaled_cropped",
     "time": null,
     "date": null
   },
   {
     "file": "christmas_tree.jpg",
+    "type": "image",
     "display": "scaled",
     "time": null,
     "date": "12-25"
   },
   {
     "file": "night_city.jpg",
+    "type": "image",
     "display": "normal",
     "time": "20:00",
     "date": null
+  },
+  {
+    "file": "ocean_waves.mp4",
+    "type": "video",
+    "display": "normal",
+    "muted": false,
+    "volume": 0.3,
+    "animation": "slide_left"
+  },
+  {
+    "file": "https://threejs.org/",
+    "type": "web",
+    "animation": "zoom_in",
+    "time": "15:00"
+  },
+  {
+    "file": "file:///var/www/html/my_local_page/index.html",
+    "type": "web",
+    "animation": "fade"
   }
 ]

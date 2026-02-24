@@ -6,7 +6,7 @@
   "license": "AGPL-3.0-only",
   "scripts": {
     "build": "node build.js",
-    "prettier": "prettier --write ./web/src/*"
+    "prettier": "prettier --write ./web/src/* && prettier --write ./build.js"
   },
   "dependencies": {
     "dotenv": "^17.3.1",
