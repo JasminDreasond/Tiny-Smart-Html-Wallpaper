@@ -45,5 +45,6 @@ You can define specific properties for each wallpaper:
 - `muted`: Boolean (video only).
 - `volume`: 0.0 to 1.0 (video only).
 - `animation`: Overrides the global default animation.
+- `weight`: Number to define random probability. Default is 1. A weight of 10 means it's 10x more likely to appear.
 
 Enjoy your new dynamic desktop!

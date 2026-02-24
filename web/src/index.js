@@ -8,6 +8,7 @@
  * @property {boolean} [muted]
  * @property {number} [volume]
  * @property {string} [animation]
+ * @property {number} [weight]
  */
 
 /** @type {Wallpaper[]} */
@@ -97,6 +98,44 @@ const findPriorityWallpaper = (list) => {
 
     return isDateMatch || isTimeMatch;
   });
+};
+
+/**
+ * @param {Wallpaper[]} list
+ * @returns {Wallpaper}
+ */
+const getRandomWallpaper = (list) => {
+  /** @type {number} */
+  let totalWeight = 0;
+
+  /** @type {number} */
+  let i = 0;
+  for (i = 0; i < list.length; i++) {
+    /** @type {Wallpaper} */
+    const wp = list[i];
+    /** @type {number} */
+    const w = wp.weight !== undefined ? wp.weight : 1;
+    totalWeight += w;
+  }
+
+  /** @type {number} */
+  let randomVal = Math.random() * totalWeight;
+
+  /** @type {number} */
+  let j = 0;
+  for (j = 0; j < list.length; j++) {
+    /** @type {Wallpaper} */
+    const wp = list[j];
+    /** @type {number} */
+    const w = wp.weight !== undefined ? wp.weight : 1;
+
+    if (randomVal < w) {
+      return wp;
+    }
+    randomVal -= w;
+  }
+
+  return list[0];
 };
 
 /**
@@ -195,9 +234,9 @@ const updateWallpaper = () => {
   }
 
   if (process.env.SLIDESHOW_ORDER === 'random') {
-    /** @type {number} */
-    const randomIndex = Math.floor(Math.random() * wallpapers.length);
-    renderWallpaper(wallpapers[randomIndex]);
+    /** @type {Wallpaper} */
+    const randomWp = getRandomWallpaper(wallpapers);
+    renderWallpaper(randomWp);
   } else {
     renderWallpaper(wallpapers[currentIndex]);
     currentIndex = (currentIndex + 1) % wallpapers.length;

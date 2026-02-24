@@ -55,5 +55,15 @@
     "file": "file:///var/www/html/my_local_page/index.html",
     "type": "web",
     "animation": "fade"
+  },
+  {
+    "file": "rare_art.jpg",
+    "type": "image",
+    "weight": 10
+  },
+  {
+    "file": "epic_video.mp4",
+    "type": "video",
+    "weight": 5
   }
 ]
