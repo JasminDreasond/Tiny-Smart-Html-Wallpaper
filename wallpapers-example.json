@@ -1,0 +1,20 @@
+[
+  {
+    "file": "mountains.jpg",
+    "display": "scaled_cropped",
+    "time": null,
+    "date": null
+  },
+  {
+    "file": "christmas_tree.jpg",
+    "display": "scaled",
+    "time": null,
+    "date": "12-25"
+  },
+  {
+    "file": "night_city.jpg",
+    "display": "normal",
+    "time": "20:00",
+    "date": null
+  }
+]
