@@ -121,3 +121,7 @@ button {
 .error {
   color: #f38ba8;
 }
+
+.header-row {
+  padding-bottom: 15px;
+}
