@@ -435,7 +435,7 @@ const initApp = async () => {
         msg.innerText = 'Build finished! /dist is updated.';
         msg.className = 'success';
       } else {
-        msg.innerText = 'Build failed!';
+        msg.innerText = `Build failed! ${result.error}`;
         msg.className = 'error';
       }
     }

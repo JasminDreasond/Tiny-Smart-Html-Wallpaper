@@ -11,11 +11,12 @@
     "start": "electron .",
     "build:web": "node build.js",
     "build:app": "electron-builder --linux --win",
-    "prettier": "prettier --write ./web/src/* && prettier --write ./gui/* && prettier --write ./build.js && prettier --write ./main.js && prettier --write ./preload.js"
+    "prettier": "prettier --write ./web/src/* && prettier --write ./gui/* && prettier --write ./build.js && prettier --write ./main.js && prettier --write ./preload.js && prettier --write ./folders.js"
   },
   "dependencies": {
     "dotenv": "^17.3.1",
     "esbuild": "^0.27.3",
+    "esbuild-wasm": "^0.27.3",
     "prettier": "^3.8.1"
   },
   "devDependencies": {
@@ -31,24 +32,37 @@
     "files": [
       "example.env",
       "wallpapers-example.json",
+      "folders.js",
       "main.js",
       "preload.js",
       "build.js",
       "gui/**/*",
+      "web/src/**/*",
       "node_modules/**/*"
+    ],
+    "asarUnpack": [
+      "node_modules/esbuild/**/*",
+      "node_modules/@esbuild/**/*",
+      "node_modules/esbuild-wasm/**/*"
     ],
     "mac": {
       "category": "public.app-category.utilities",
       "icon": "build-assets/icon.icns",
-      "target": ["dmg"]
+      "target": [
+        "dmg"
+      ]
     },
     "win": {
       "icon": "build-assets/icon.ico",
-      "target": ["nsis"]
+      "target": [
+        "nsis"
+      ]
     },
     "linux": {
       "icon": "build-assets/icon.png",
-      "target": ["AppImage"],
+      "target": [
+        "AppImage"
+      ],
       "category": "Utility"
     },
     "nsis": {

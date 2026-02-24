@@ -1,5 +1,6 @@
 import * as esbuild from 'esbuild';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
+import path from 'path';
 import 'dotenv/config';
 
 /**
@@ -9,19 +10,22 @@ import 'dotenv/config';
 const readText = (filePath) => readFileSync(filePath, 'utf-8');
 
 /**
+ * @param {string} [root='./']
+ * @param {string} [srcFolder]
  * @returns {Promise<void>}
  */
-export const runBuild = async () => {
-  if (!existsSync('./dist')) mkdirSync('./dist');
+export const runBuild = async (root = './', es = esbuild, srcFolder = './web/src/') => {
+  const distDir = path.join(root, 'dist');
+  if (!existsSync(distDir)) mkdirSync(distDir);
 
   /** @type {string} */
-  const wallpapersData = readText('./wallpapers.json');
+  const wallpapersData = readText(path.join(root, 'wallpapers.json'));
 
-  await esbuild.build({
-    entryPoints: ['web/src/index.js'],
+  await es.build({
+    entryPoints: [path.join(srcFolder, 'index.js')],
     bundle: true,
     minify: true,
-    outfile: 'dist/bundle.js',
+    outfile: path.join(distDir, 'bundle.js'),
     define: {
       'process.env.ENGINE_MODE': JSON.stringify(process.env.ENGINE_MODE),
       'process.env.SLIDESHOW_ORDER': JSON.stringify(process.env.SLIDESHOW_ORDER),
@@ -53,14 +57,14 @@ export const runBuild = async () => {
 </body>
 </html>`;
 
-  writeFileSync('./dist/index.html', htmlContent);
+  writeFileSync(path.join(distDir, 'index.html'), htmlContent);
 
   /** @type {string} */
-  const cssContent = readText('./web/src/style.css');
-  writeFileSync('./dist/style.css', cssContent);
+  const cssContent = readText(path.join(srcFolder, 'style.css'));
+  writeFileSync(path.join(distDir, 'style.css'), cssContent);
 
   console.log(
-    `Build finished successfully in /dist folder!\nTotal wallpapers loaded: ${JSON.parse(wallpapersData).length}`,
+    `Build finished successfully in "${distDir}" folder!\nTotal wallpapers loaded: ${JSON.parse(wallpapersData).length}`,
   );
 };
 

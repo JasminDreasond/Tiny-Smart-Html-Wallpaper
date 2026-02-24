@@ -1,9 +1,10 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { readFile, writeFile, copyFile } from 'fs/promises';
-import { existsSync } from 'fs';
+import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { runBuild } from './build.js';
+import { configFolderName } from './folders.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,8 +59,12 @@ app.on('window-all-closed', () => {
 
 ipcMain.handle('load-config', async () => {
   try {
+    const cfgFolder = path.join(workDir, configFolderName);
+    const envFile = path.join(cfgFolder, '.env');
+    const wpFile = path.join(cfgFolder, 'wallpapers.json');
+
     /** @type {boolean} */
-    const envExists = existsSync('.env');
+    const envExists = existsSync(envFile);
 
     if (!envExists) {
       /** @type {string} */
@@ -68,23 +73,23 @@ ipcMain.handle('load-config', async () => {
       const exampleExists = existsSync(examplePath);
 
       if (exampleExists) {
-        await copyFile(examplePath, '.env');
+        await copyFile(examplePath, envFile);
       } else {
         console.warn('example.env not found! Creating an empty .env file.');
-        await writeFile('.env', '');
+        await writeFile(envFile, '');
       }
     }
 
     /** @type {boolean} */
-    const wpExists = existsSync('wallpapers.json');
+    const wpExists = existsSync(wpFile);
     if (!wpExists) {
-      await writeFile('wallpapers.json', '[]');
+      await writeFile(wpFile, '[]');
     }
 
     /** @type {string} */
-    const envData = await readFile('.env', 'utf-8');
+    const envData = await readFile(envFile, 'utf-8');
     /** @type {string} */
-    const wpData = await readFile('wallpapers.json', 'utf-8');
+    const wpData = await readFile(wpFile, 'utf-8');
 
     return {
       env: envData,
@@ -98,14 +103,29 @@ ipcMain.handle('load-config', async () => {
 
 ipcMain.handle('save-and-build', async (event, data) => {
   try {
-    await writeFile('.env', data.env);
-    await writeFile('wallpapers.json', JSON.stringify(data.wallpapers, null, 2));
+    const cfgFolder = path.join(workDir, configFolderName);
+    const envFile = path.join(cfgFolder, '.env');
+    const srcFolder = path.join(cfgFolder, '/src/');
+
+    await writeFile(envFile, data.env);
+    await writeFile(
+      path.join(cfgFolder, 'wallpapers.json'),
+      JSON.stringify(data.wallpapers, null, 2),
+    );
+
+    const esbuild = await import(
+      path.join(execDir, '../app.asar.unpacked/node_modules/esbuild-wasm/lib/main.js')
+    );
 
     /** @type {any} */
     const dotenv = await import('dotenv');
-    dotenv.config({ override: true });
+    dotenv.config({ override: true, path: envFile });
 
-    await runBuild();
+    if (!existsSync(srcFolder)) mkdirSync(srcFolder);
+    await copyFile(path.join(execDir, '/web/src/index.js'), path.join(srcFolder, 'index.js'));
+    await copyFile(path.join(execDir, '/web/src/style.css'), path.join(srcFolder, 'style.css'));
+
+    await runBuild(cfgFolder, esbuild, srcFolder);
     return { success: true };
   } catch (error) {
     console.error('Build failed:', error);
