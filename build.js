@@ -35,7 +35,9 @@ const buildProject = async () => {
     },
   });
 
-  console.log('Build finished successfully!');
+  console.log(
+    `Build finished! Total wallpapers loaded: ${JSON.parse(wallpapersData).length}`,
+  );
 };
 
 buildProject();
