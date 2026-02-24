@@ -55,7 +55,7 @@ You can define specific properties for each wallpaper:
 
 ### 🖥️ Tested Environments
 
-This engine is designed to run beautifully as a web-based desktop background. It has been successfully tested on KDE Plasma using the following plugin:
+We want to ensure your dynamic wallpapers run perfectly! Currently, this project has been personally tested and works on:
 
 * [HTML Wallpaper (KDE Store)](https://store.kde.org/p/1324580)
 
