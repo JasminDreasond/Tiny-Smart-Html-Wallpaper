@@ -39,7 +39,7 @@ const setupWorkingDirectory = () => {
  * @returns {Promise<void>}
  */
 const createWindow = async () => {
-  const icon = path.join(__dirname, 'favicon/favicon.png');
+  const icon = path.join(__dirname, 'favicon/icon.png');
 
   /** @type {BrowserWindow} */
   const win = new BrowserWindow({

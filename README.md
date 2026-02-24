@@ -58,7 +58,7 @@ You can define specific properties for each wallpaper:
 
 You can compile the configurator into a standalone executable (AppImage for Linux, .exe for Windows, and .dmg for macOS).
 
-1. Place your app icons in the `build-assets/` folder (`icon.png`, `icon.ico`, `icon.icns`).
+1. Place your app icons in the `favicon/` folder (`icon.png`, `icon.ico`, `icon.icns`).
 2. Run the build command:
    ```bash
    npm run build:app

@@ -59,19 +59,19 @@
     ],
     "mac": {
       "category": "public.app-category.utilities",
-      "icon": "favicon/favicon.icns",
+      "icon": "favicon/icon.icns",
       "target": [
         "dmg"
       ]
     },
     "win": {
-      "icon": "favicon/favicon.ico",
+      "icon": "favicon/icon.ico",
       "target": [
         "nsis"
       ]
     },
     "linux": {
-      "icon": "favicon/favicon.png",
+      "icon": "favicon/icon.png",
       "target": [
         "AppImage"
       ],
