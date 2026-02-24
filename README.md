@@ -60,3 +60,10 @@ We want to ensure your dynamic wallpapers run perfectly! Currently, this project
 * [HTML Wallpaper (KDE Store)](https://store.kde.org/p/1324580)
 
 Enjoy your new dynamic desktop!
+
+---
+
+## 💡 Credits
+
+> 🧠 **Note**: This documentation was written by [Gemini](https://gemini.google.com), an AI assistant developed by Google, based on the project structure and descriptions provided by the repository author.  
+> If you find any inaccuracies or need improvements, feel free to contribute or open an issue!
