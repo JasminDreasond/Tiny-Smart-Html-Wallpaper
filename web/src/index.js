@@ -50,7 +50,7 @@ const renderWallpaper = (wallpaper) => {
     const container = document.getElementById('wallpaper-container');
     const displayMode = wallpaper.display || process.env.DEFAULT_DISPLAY;
 
-    container.style.backgroundImage = `url('../assets/${wallpaper.file}')`;
+    container.style.backgroundImage = `url('./assets/${wallpaper.file}')`;
     container.className = `display-${displayMode}`;
 };
 
