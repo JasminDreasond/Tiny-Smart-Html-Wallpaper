@@ -1,0 +1,57 @@
+# .github/workflows/publish.yml
+name: Publish Electron App
+
+# Triggers the workflow only manually from the GitHub Actions tab
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    # Grants necessary permissions to upload files to the release
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'yarn'
+
+      - name: Install Wine for Windows compilation
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y wine64 wine32
+
+      - name: Install project dependencies
+        run: yarn install
+
+      - name: Build the Electron application
+        run: yarn build:app
+
+      - name: Get latest release tag
+        id: get_tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LATEST_TAG=$(gh release view --json tagName -q .tagName)
+          echo "tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to latest release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_tag.outputs.tag }}
+          # Specifies the output files from electron-builder to upload
+          files: |
+            release/*.AppImage
+            release/*.exe
+            release/*.blockmap
+            release/latest*.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
