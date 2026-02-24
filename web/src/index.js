@@ -44,6 +44,42 @@ const getCurrentTimeStr = () => {
 };
 
 /**
+ * @param {string} timeStr
+ * @returns {number}
+ */
+const timeToMinutes = (timeStr) => {
+  /** @type {string[]} */
+  const parts = timeStr.split(':');
+  return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+};
+
+/**
+ * @param {string} range
+ * @param {string} current
+ * @returns {boolean}
+ */
+const isTimeInRange = (range, current) => {
+  if (!range.includes('-')) {
+    return range === current;
+  }
+
+  /** @type {string[]} */
+  const limits = range.split('-');
+  /** @type {number} */
+  const start = timeToMinutes(limits[0]);
+  /** @type {number} */
+  const end = timeToMinutes(limits[1]);
+  /** @type {number} */
+  const now = timeToMinutes(current);
+
+  if (start <= end) {
+    return now >= start && now <= end;
+  }
+
+  return now >= start || now <= end;
+};
+
+/**
  * @param {Wallpaper[]} list
  * @returns {Wallpaper | undefined}
  */
@@ -52,7 +88,15 @@ const findPriorityWallpaper = (list) => {
   const today = getCurrentDateStr();
   /** @type {string} */
   const now = getCurrentTimeStr();
-  return list.find((wp) => wp.date === today || wp.time === now);
+
+  return list.find((wp) => {
+    /** @type {boolean} */
+    const isDateMatch = wp.date === today;
+    /** @type {boolean} */
+    const isTimeMatch = wp.time ? isTimeInRange(wp.time, now) : false;
+
+    return isDateMatch || isTimeMatch;
+  });
 };
 
 /**

@@ -1,5 +1,11 @@
 [
   {
+    "file": "default_loop.jpg",
+    "type": "image",
+    "time": null,
+    "date": null
+  },
+  {
     "file": "mountains.jpg",
     "type": "image",
     "display": "scaled_cropped",
@@ -17,8 +23,19 @@
     "file": "night_city.jpg",
     "type": "image",
     "display": "normal",
-    "time": "20:00",
+    "time": "21:00-03:00",
     "date": null
+  },
+  {
+    "file": "sunrise_ocean.mp4",
+    "type": "video",
+    "time": "05:00-09:00",
+    "muted": true
+  },
+  {
+    "file": "afternoon_fields.jpg",
+    "type": "image",
+    "time": "12:00-18:00"
   },
   {
     "file": "ocean_waves.mp4",

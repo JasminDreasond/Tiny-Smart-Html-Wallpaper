@@ -40,6 +40,8 @@ A highly customizable, lightweight Node.js wallpaper engine built with esbuild. 
 ### Individual Settings (`wallpapers.json`)
 You can define specific properties for each wallpaper:
 - `type`: Must be `"image"`, `"video"`, or `"web"`.
+- `time`: Set an exact time (`"15:00"`) or a time range (`"21:00-03:00"`). It handles midnight crossings automatically!
+- `date`: Set a specific date (`"12-25"`).
 - `muted`: Boolean (video only).
 - `volume`: 0.0 to 1.0 (video only).
 - `animation`: Overrides the global default animation.
