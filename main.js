@@ -7,6 +7,28 @@ import { runBuild } from './build.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+let workDir;
+let execDir;
+
+/**
+ * @returns {void}
+ */
+const setupWorkingDirectory = () => {
+  if (app.isPackaged) {
+    if (process.platform === 'linux' && process.env.APPIMAGE) {
+      workDir = path.dirname(process.env.APPIMAGE);
+      execDir = path.dirname(app.getPath('exe'));
+    } else if (process.platform === 'darwin') {
+      workDir = path.resolve(app.getPath('exe'), '../../..');
+      execDir = workDir;
+    } else {
+      workDir = path.dirname(app.getPath('exe'));
+      execDir = workDir;
+    }
+
+    execDir = path.join(execDir, './resources/app.asar/');
+  }
+};
 
 /**
  * @returns {Promise<void>}
@@ -27,6 +49,7 @@ const createWindow = async () => {
   await win.loadFile('gui/index.html');
 };
 
+setupWorkingDirectory();
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
@@ -37,11 +60,15 @@ ipcMain.handle('load-config', async () => {
   try {
     /** @type {boolean} */
     const envExists = existsSync('.env');
+
     if (!envExists) {
+      /** @type {string} */
+      const examplePath = path.join(execDir ?? app.getAppPath(), 'example.env');
       /** @type {boolean} */
-      const exampleExists = existsSync('example.env');
+      const exampleExists = existsSync(examplePath);
+
       if (exampleExists) {
-        await copyFile('example.env', '.env');
+        await copyFile(examplePath, '.env');
       } else {
         console.warn('example.env not found! Creating an empty .env file.');
         await writeFile('.env', '');

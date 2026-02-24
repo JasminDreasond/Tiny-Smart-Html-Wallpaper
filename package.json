@@ -29,6 +29,8 @@
       "output": "release/"
     },
     "files": [
+      "example.env",
+      "wallpapers-example.json",
       "main.js",
       "preload.js",
       "build.js",
