@@ -10,6 +10,7 @@ lerna-debug.log*
 wallpapers.json
 web/assets/
 backup/
+release/
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json

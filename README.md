@@ -1,27 +1,28 @@
-# 🌟 Smart Wallpaper Engine
+# 🌟 Smart Html Wallpaper Engine
 
-A highly customizable, lightweight Node.js wallpaper engine built with esbuild. Set up your wallpapers to change based on specific times, dates, and enjoy beautiful transitions between images, videos, and web pages!
+A highly customizable, lightweight Node.js wallpaper engine with responsive ElectronJS Graphic User Interface! Set up your wallpapers to change based on specific times, dates, probability weights, and enjoy beautiful transitions between images, videos, and web pages.
 
+## 🚀 Features
 - **Media Support**: Load images, videos (with volume control), and web pages (iframes).
 - **Animations**: Configurable transitions (`fade`, `slide_left`, `slide_right`, `zoom_in`).
 - **Scheduling**: Priority wallpapers for specific times or dates.
+- **Advanced Scheduling**: Set specific dates or time ranges (e.g., `21:00-03:00` safely crossing midnight!).
+- **Probability Weights**: Make specific wallpapers appear more often during random slideshows.
+- **Visual Desktop Configurator**: An ElectronJS app to visually drag-and-drop your wallpaper database and manage engine settings with real-time validation.
 
-## 🚀 How to Use
+## 🛠️ How to Use (Development)
 
 1. **Install dependencies:**
    Run `npm install` in the root folder.
 
-2. **Configure the Engine:**
-   Open the `.env` file to set your global preferences, like slideshow interval and default display mode.
+2. **Run the Configurator App:**
+   Run `npm start` to open the visual interface.
+   
+3. **Configure & Build:**
+   Use the GUI to set your engine parameters and add your wallpapers. Once you click **"Save & Build"**, the app uses `esbuild` to instantly generate your static, lightning-fast engine in the `/dist` folder.
 
-3. **Set your Wallpapers:**
-   Drop your images into `web/assets/` and register them in `wallpapers.json`. You can set specific dates (like `"12-25"` for Christmas) or times (like `"08:00"`).
-
-4. **Build the Web App:**
-   Run `npm run build`. The esbuild will bundle everything into a super fast, static file.
-
-5. **Run it:**
-   Just open `web/index.html` in your browser or point your desktop wallpaper engine to this file!
+4. **Run the Engine:**
+   Serve the `/dist` folder with Apache2 or load the `index.html` directly into your desktop environment!
 
 ## 🎨 Display Modes Available
 - `scaled_cropped`: Fills the screen perfectly, keeping it centered.
@@ -52,6 +53,26 @@ You can define specific properties for each wallpaper:
 - `volume`: 0.0 to 1.0 (video only).
 - `animation`: Overrides the global default animation.
 - `weight`: Number to define random probability. Default is 1. A weight of 10 means it's 10x more likely to appear.
+
+## 📦 Building the Standalone Application
+
+You can compile the configurator into a standalone executable (AppImage for Linux, .exe for Windows, and .dmg for macOS).
+
+1. Place your app icons in the `build-assets/` folder (`icon.png`, `icon.ico`, `icon.icns`).
+2. Run the build command:
+   ```bash
+   npm run build:app
+   ```
+
+3. Your compiled applications will be available inside the `release/` folder!
+
+*(Note: Building the macOS `.dmg` installer requires running the build script on a macOS machine).*
+
+## ⚙️ Core Logic Files
+
+* `.env` / `example.env`: Holds global configuration parameters.
+* `wallpapers.json`: The database array holding individual media properties.
+* `gui/`: Contains the Electron interface to manage everything safely.
 
 ### 🖥️ Tested Environments
 
