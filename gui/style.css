@@ -217,3 +217,39 @@ button {
 .header-row {
   padding-bottom: 15px;
 }
+
+/* Custom Scrollbar Configuration */
+
+/* Firefox support */
+* {
+  scrollbar-width: thin;
+  /* Uses the vibrant violet and a transparent track */
+  scrollbar-color: #8b5cf6 transparent;
+}
+
+/* Chrome, Edge, and Safari support */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(9, 9, 11, 0.3);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  /* Using the primary gradient defined in :root */
+  background: var(--gradient-primary);
+  border-radius: 8px;
+  /* Adds a subtle border to separate from the track */
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  /* Brighter gradient on hover for interactive feedback */
+  background: var(--gradient-primary-hover);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
