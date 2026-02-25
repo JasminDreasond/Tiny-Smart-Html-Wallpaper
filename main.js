@@ -37,8 +37,9 @@ const getCfgs = () => {
   const cfgFolder = path.join(workDir, configFolderName);
   const envFile = path.join(cfgFolder, '.env');
   const wpFile = path.join(cfgFolder, 'wallpapers.json');
+  const srcFolder = path.join(cfgFolder, '/src/');
 
-  return { cfgFolder, envFile, wpFile };
+  return { cfgFolder, envFile, wpFile, srcFolder };
 };
 
 /**
@@ -144,7 +145,7 @@ ipcMain.handle('load-config', async () => {
 
 ipcMain.handle('save-and-build', async (event, data) => {
   try {
-    const { envFile, cfgFolder, wpFile } = getCfgs();
+    const { envFile, cfgFolder, wpFile, srcFolder } = getCfgs();
 
     await writeFile(envFile, data.env);
     await writeFile(wpFile, JSON.stringify(data.wallpapers, null, 2));
