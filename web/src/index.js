@@ -8,6 +8,7 @@
  * @property {boolean} [muted]
  * @property {number} [volume]
  * @property {boolean} [loop]
+ * @property {boolean} [nextOnEnd]
  * @property {string} [animation]
  * @property {number} [weight]
  */
@@ -169,9 +170,13 @@ const createMediaElement = (wp) => {
     el = document.createElement('video');
     el.src = source;
     el.autoplay = true;
-    el.loop = wp.loop !== undefined ? wp.loop : true;
+    el.loop = wp.nextOnEnd ? false : wp.loop !== undefined ? wp.loop : true;
     el.muted = wp.muted !== undefined ? wp.muted : true;
     el.volume = wp.volume !== undefined ? wp.volume : 1.0;
+
+    if (wp.nextOnEnd) {
+      el.addEventListener('ended', updateWallpaper);
+    }
   } else if (wp.type === 'web') {
     el = document.createElement('iframe');
     el.src = source;

@@ -79,6 +79,7 @@ const wpSchema = {
   weight: (v) => v === '' || (!isNaN(Number(v)) && Number(v) > 0),
   animation: (v) => true,
   volume: (v) => v === '' || (!isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 1),
+  nextOnEnd: (v) => true,
 };
 
 /**
@@ -398,6 +399,19 @@ const renderWallpapers = () => {
           ? `
       <div style="display: flex; gap: 10px; margin-top: 10px; background: rgba(9, 9, 11, 0.3); padding: 10px; border-radius: 6px;">
         <div class="input-group" style="flex: 1;">
+          <label>Next on End</label>
+          <select onchange="updateWp(${i}, 'nextOnEnd', this.value, 'boolean')" style="padding: 8px; background: rgba(9, 9, 11, 0.6); color: var(--text-color); border: 1px solid var(--card-border-color); border-radius: 6px;">
+            <option value="true" ${wp.nextOnEnd === true ? 'selected' : ''}>True</option>
+            <option value="false" ${wp.nextOnEnd !== true ? 'selected' : ''}>False</option>
+          </select>
+        </div>
+        <div class="input-group" style="flex: 1;">
+          <label>Volume (0.0 to 1.0)</label>
+          <input type="number" step="0.1" min="0" max="1" value="${wp.volume !== undefined ? wp.volume : ''}" placeholder="1.0" oninput="validateWpInput(this, 'volume')" onchange="updateWp(${i}, 'volume', this.value, 'number')">
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px; margin-top: 10px; background: rgba(9, 9, 11, 0.3); padding: 10px; border-radius: 6px;">
+        <div class="input-group" style="flex: 1;">
           <label>Loop</label>
           <select onchange="updateWp(${i}, 'loop', this.value, 'boolean')" style="padding: 8px; background: rgba(9, 9, 11, 0.6); color: var(--text-color); border: 1px solid var(--card-border-color); border-radius: 6px;">
             <option value="true" ${wp.loop !== false ? 'selected' : ''}>True</option>
@@ -410,10 +424,6 @@ const renderWallpapers = () => {
             <option value="true" ${wp.muted !== false ? 'selected' : ''}>True</option>
             <option value="false" ${wp.muted === false ? 'selected' : ''}>False</option>
           </select>
-        </div>
-        <div class="input-group" style="flex: 1;">
-          <label>Volume (0.0 to 1.0)</label>
-          <input type="number" step="0.1" min="0" max="1" value="${wp.volume !== undefined ? wp.volume : ''}" placeholder="1.0" oninput="validateWpInput(this, 'volume')" onchange="updateWp(${i}, 'volume', this.value, 'number')">
         </div>
       </div>
       `
