@@ -289,6 +289,7 @@ const updatePreview = (index, rawInput, type) => {
     // Strict sandbox: only allows scripts for visual rendering.
     // Removed 'allow-same-origin' to prevent local file reading and parent context access.
     iframe.sandbox.add('allow-scripts');
+    iframe.sandbox.remove('allow-same-origin');
 
     iframe.onload = () => finalize(iframe);
     iframe.onerror = () => {
