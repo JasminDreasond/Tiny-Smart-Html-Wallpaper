@@ -1,4 +1,8 @@
-<center><img src="./favicon/icon.png" alt="logo"></center>
+<p align="center">
+  <a href="./favicon/original">
+    <img src="./favicon/icon.png" alt="logo">
+  </a>
+</p>
 
 # 🌟 Smart Html Wallpaper Engine
 
