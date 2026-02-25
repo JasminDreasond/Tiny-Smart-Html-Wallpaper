@@ -11,7 +11,8 @@ const previewLoadIds = {};
 let ASSETS_PATH = '';
 
 /** @type {"inline"|"single"} */
-let previewMode = 'inline';
+let previewMode =
+  /** @type {"inline"|"single"} */ (localStorage.getItem('previewMode')) || 'inline';
 /** @type {number} */
 let activePreviewIndex = 0;
 
@@ -93,6 +94,7 @@ const wpSchema = {
  */
 window.togglePreviewMode = (mode) => {
   previewMode = /** @type {"inline"|"single"} */ (mode);
+  localStorage.setItem('previewMode', mode);
   renderWallpapers();
 };
 
@@ -710,17 +712,21 @@ const initApp = async () => {
     renderWallpapers();
   }
 
+  /** @type {HTMLElement | null} */
+  const topListElement = document.getElementById('top-list');
+  if (topListElement) {
     /** @type {HTMLElement} */
-  const topControls = document.createElement('div');
-  topControls.style.marginBottom = '15px';
-  topControls.innerHTML = `
-    <label style="color: var(--label-color); font-size: 0.9em; margin-right: 5px; font-weight: bold;">Preview Mode:</label>
-    <select onchange="window.togglePreviewMode(this.value)" style="padding: 6px 10px; background: rgba(9, 9, 11, 0.6); color: var(--text-color); border: 1px solid var(--card-border-color); border-radius: 6px; cursor: pointer;">
-      <option value="inline" ${previewMode === 'inline' ? 'selected' : ''}>Inline</option>
-      <option value="single" ${previewMode === 'single' ? 'selected' : ''}>Top (Sticky)</option>
-    </select>
-  `;
-  document.getElementById('top-list')?.appendChild(topControls);
+    const topControls = document.createElement('div');
+    topControls.style.marginBottom = '15px';
+    topControls.innerHTML = `
+      <label style="color: var(--label-color); font-size: 0.9em; margin-right: 5px; font-weight: bold;">Preview Mode:</label>
+      <select onchange="window.togglePreviewMode(this.value)" style="padding: 6px 10px; background: rgba(9, 9, 11, 0.6); color: var(--text-color); border: 1px solid var(--card-border-color); border-radius: 6px; cursor: pointer;">
+        <option value="inline" ${previewMode === 'inline' ? 'selected' : ''}>Inline</option>
+        <option value="single" ${previewMode === 'single' ? 'selected' : ''}>Top (Sticky)</option>
+      </select>
+    `;
+    topListElement.appendChild(topControls);
+  }
 
   document.getElementById('btn-add-wp')?.addEventListener('click', () => {
     wallpapersList.push({ file: 'new_media.jpg', type: 'image' });
