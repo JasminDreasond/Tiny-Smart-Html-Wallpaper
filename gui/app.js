@@ -398,6 +398,13 @@ const renderWallpapers = () => {
           ? `
       <div style="display: flex; gap: 10px; margin-top: 10px; background: rgba(9, 9, 11, 0.3); padding: 10px; border-radius: 6px;">
         <div class="input-group" style="flex: 1;">
+          <label>Loop</label>
+          <select onchange="updateWp(${i}, 'loop', this.value, 'boolean')" style="padding: 8px; background: rgba(9, 9, 11, 0.6); color: var(--text-color); border: 1px solid var(--card-border-color); border-radius: 6px;">
+            <option value="true" ${wp.loop !== false ? 'selected' : ''}>True</option>
+            <option value="false" ${wp.loop === false ? 'selected' : ''}>False</option>
+          </select>
+        </div>
+        <div class="input-group" style="flex: 1;">
           <label>Muted</label>
           <select onchange="updateWp(${i}, 'muted', this.value, 'boolean')" style="padding: 8px; background: rgba(9, 9, 11, 0.6); color: var(--text-color); border: 1px solid var(--card-border-color); border-radius: 6px;">
             <option value="true" ${wp.muted !== false ? 'selected' : ''}>True</option>

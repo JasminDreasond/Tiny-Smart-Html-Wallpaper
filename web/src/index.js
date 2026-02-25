@@ -7,6 +7,7 @@
  * @property {string | null} [date]
  * @property {boolean} [muted]
  * @property {number} [volume]
+ * @property {boolean} [loop]
  * @property {string} [animation]
  * @property {number} [weight]
  */
@@ -168,7 +169,7 @@ const createMediaElement = (wp) => {
     el = document.createElement('video');
     el.src = source;
     el.autoplay = true;
-    el.loop = true;
+    el.loop = wp.loop !== undefined ? wp.loop : true;
     el.muted = wp.muted !== undefined ? wp.muted : true;
     el.volume = wp.volume !== undefined ? wp.volume : 1.0;
   } else if (wp.type === 'web') {

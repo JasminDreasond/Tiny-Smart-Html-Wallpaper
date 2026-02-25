@@ -11,7 +11,6 @@
    [![Twitter](https://img.shields.io/badge/-Twitter-1da1f2?style=for-the-badge&logo=Twitter&logoColor=white)](https://twitter.com/JasminDreasond/)
    [![Wallet](https://img.shields.io/badge/-Wallet_Donation-ecf0f1?style=for-the-badge&logo=Ethereum&logoColor=black)](https://ud.me/jasmindreasond.x)
    [![Bitcoin](https://img.shields.io/badge/-Bitcoin_Donation-0d579b?style=for-the-badge&logo=Bitcoin&logoColor=black)](https://www.blockchain.com/pt/btc/address/bc1qnk7upe44xrsll2tjhy5msg32zpnqxvyysyje2g)
-
 </div>
 
 # 🌟 Smart Html Wallpaper Engine
