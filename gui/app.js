@@ -241,6 +241,16 @@ const updatePreview = (index, rawInput, type) => {
   }
 };
 
+const refreshAllWallpapers = async () => {
+  /** @type {any} */
+  const config = await window.electronAPI.loadConfig();
+  ASSETS_PATH = config.ASSETS_PATH ?? '';
+  if (!config) return;
+  wallpapersList.forEach((wp, index) => {
+    if (wp.file) updatePreview(index, wp.file, wp.type || 'image');
+  });
+};
+
 /**
  * @returns {void}
  */
@@ -279,12 +289,6 @@ const renderEnvForm = () => {
       const target = /** @type {HTMLInputElement} */ (e.target);
       envDataObj[key] = target.value;
       validateEnvInput(target, key);
-
-      if (key === 'ASSETS_PATH') {
-        wallpapersList.forEach((wp, index) => {
-          if (wp.file) updatePreview(index, wp.file, wp.type || 'image');
-        });
-      }
     });
 
     group.appendChild(label);
@@ -554,7 +558,6 @@ window.handleDrop = (dropIndex, event) => {
  * @returns {void}
  */
 const initApp = async () => {
-  // @ts-ignore
   /** @type {any} */
   const config = await window.electronAPI.loadConfig();
   if (config) {
@@ -594,6 +597,7 @@ const initApp = async () => {
       if (result.success) {
         msg.innerText = 'Build finished! /dist is updated.';
         msg.className = 'success';
+        refreshAllWallpapers();
       } else {
         msg.innerText = `Build failed! ${result.error}`;
         msg.className = 'error';
