@@ -1,3 +1,5 @@
+<center><img src="./favicon/icon.png" alt="logo"></center>
+
 # 🌟 Smart Html Wallpaper Engine
 
 A highly customizable, lightweight Node.js wallpaper engine with responsive ElectronJS Graphic User Interface! Set up your wallpapers to change based on specific times, dates, probability weights, and enjoy beautiful transitions between images, videos, and web pages.
