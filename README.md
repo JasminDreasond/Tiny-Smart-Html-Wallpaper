@@ -1,20 +1,18 @@
-<p align="center">
+<div align="center">
    <a href="./favicon/original">
       <img src="./favicon/icon.png" alt="logo">
    </a>
-   <br/><br/>
+   <br/>
    <a href="https://discord.gg/sSkysVtj7y"><img src="https://img.shields.io/discord/881322783538298891?color=7289da&logo=discord&logoColor=white" alt="Discord server" /></a>
    <a href="https://www.patreon.com/JasminDreasond"><img src="https://img.shields.io/badge/donate-patreon-F96854.svg?logo=patreon" alt="Patreon" /></a>
    <a href="https://ko-fi.com/jasmindreasond"><img src="https://img.shields.io/badge/donate-ko%20fi-29ABE0.svg?logo=ko-fi" alt="Ko-Fi" /></a>
-</p>
-<center>
 
    [![Github](https://img.shields.io/badge/-Github-000?style=for-the-badge&logo=Github&logoColor=white)](https://github.com/Pony-Driland)
    [![Twitter](https://img.shields.io/badge/-Twitter-1da1f2?style=for-the-badge&logo=Twitter&logoColor=white)](https://twitter.com/JasminDreasond/)
    [![Wallet](https://img.shields.io/badge/-Wallet_Donation-ecf0f1?style=for-the-badge&logo=Ethereum&logoColor=black)](https://ud.me/jasmindreasond.x)
    [![Bitcoin](https://img.shields.io/badge/-Bitcoin_Donation-0d579b?style=for-the-badge&logo=Bitcoin&logoColor=black)](https://www.blockchain.com/pt/btc/address/bc1qnk7upe44xrsll2tjhy5msg32zpnqxvyysyje2g)
-   
-</center>
+
+</div>
 
 # 🌟 Smart Html Wallpaper Engine
 
