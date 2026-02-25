@@ -1,9 +1,14 @@
+import { parseEnv } from '../global/utils.js';
+
 /** @type {Record<string, string>} */
 let envDataObj = {};
 /** @type {any[]} */
 let wallpapersList = [];
 /** @type {number | null} */
 let draggedIndex = null;
+/** @type {Record<number, number>} */
+const previewLoadIds = {};
+let ASSETS_PATH = '';
 
 /** * @typedef {Object} EnvSchemaRule
  * @property {string} placeholder
@@ -46,6 +51,21 @@ const envSchema = {
   ASSETS_PATH: { placeholder: '../web/assets/ or /absolute/path/', validate: (v) => v.length > 0 },
 };
 
+/** @type {Record<string, string>} */
+const envLabels = {
+  ENGINE_MODE: 'Engine Mode',
+  SLIDESHOW_ORDER: 'Slideshow Order',
+  SLIDESHOW_INTERVAL: 'Slideshow Interval (ms)',
+  DEFAULT_DISPLAY: 'Default Display Mode',
+  ANIMATIONS_ENABLED: 'Enable Animations',
+  TRANSITION_DURATION: 'Transition Duration (ms)',
+  DEFAULT_ANIMATION: 'Default Animation Style',
+  ANIMATE_FIRST_LOAD: 'Animate First Load',
+  FIXED_CLOCK_INTERVAL: 'Fixed Clock Interval',
+  ON_LIST_CHANGE_ONLY: 'Update On List Change Only',
+  ASSETS_PATH: 'Assets Directory Path',
+};
+
 /** @type {Record<string, (val: string) => boolean>} */
 const wpSchema = {
   file: (v) => v.trim().length > 0,
@@ -59,29 +79,47 @@ const wpSchema = {
 };
 
 /**
- * @param {string} envStr
- * @returns {Record<string, string>}
+ * @param {string} basePath
+ * @param {string} input
+ * @returns {string}
  */
-const parseEnv = (envStr) => {
-  /** @type {Record<string, string>} */
-  const result = {};
-  /** @type {string[]} */
-  const lines = envStr.split('\n');
+const buildSafeUrl = (basePath, input) => {
+  /** @type {string} */
+  let cleanInput = input.trim();
 
-  for (let i = 0; i < lines.length; i++) {
+  if (!cleanInput) return '';
+
+  if (/%00|\u0000/i.test(cleanInput)) return 'about:blank';
+
+  try {
     /** @type {string} */
-    const line = lines[i].trim();
-    if (line && !line.startsWith('#')) {
-      /** @type {string[]} */
-      const parts = line.split('=');
-      /** @type {string} */
-      const key = parts[0].trim();
-      /** @type {string} */
-      const val = parts.slice(1).join('=').replace(/"/g, '').trim();
-      if (key) result[key] = val;
-    }
+    const decoded = decodeURIComponent(cleanInput);
+    if (decoded !== cleanInput && /%00|\u0000/i.test(decoded)) return 'about:blank';
+    cleanInput = decoded;
+  } catch (e) {
+    return 'about:blank';
   }
-  return result;
+
+  if (/^https?:\/\//i.test(cleanInput)) {
+    return input.trim();
+  }
+
+  if (/^[a-z0-9]+:/i.test(cleanInput)) {
+    return 'about:blank';
+  }
+
+  if (/^[\/\\]|^[a-zA-Z]:[\/\\]/.test(cleanInput)) return 'about:blank';
+
+  /** @type {string[]} */
+  const segments = cleanInput.split(/[\/\\]+/);
+  for (let i = 0; i < segments.length; i++) {
+    if (segments[i] === '..' || segments[i] === '.') return 'about:blank';
+  }
+
+  /** @type {string} */
+  const safeBase = basePath.endsWith('/') || basePath.endsWith('\\') ? basePath : basePath + '/';
+
+  return safeBase + input.trim();
 };
 
 /**
@@ -95,8 +133,8 @@ const validateEnvInput = (input, key) => {
   if (rule) {
     /** @type {boolean} */
     const isValid = rule.validate(input.value);
-    input.style.borderColor = isValid ? '#45475a' : '#f38ba8';
-    input.style.outlineColor = isValid ? '' : '#f38ba8';
+    input.style.borderColor = isValid ? '#27272a' : '#f43f5e';
+    input.style.outlineColor = isValid ? '' : '#f43f5e';
   }
 };
 
@@ -111,8 +149,102 @@ window.validateWpInput = (input, key) => {
   if (validator) {
     /** @type {boolean} */
     const isValid = validator(input.value);
-    input.style.borderColor = isValid ? '#45475a' : '#f38ba8';
-    input.style.outlineColor = isValid ? '' : '#f38ba8';
+    input.style.borderColor = isValid ? '#27272a' : '#f43f5e';
+    input.style.outlineColor = isValid ? '' : '#f43f5e';
+  }
+};
+
+/**
+ * @param {number} index
+ * @param {string} rawInput
+ * @param {string} type
+ * @returns {void}
+ */
+const updatePreview = (index, rawInput, type) => {
+  /** @type {number} */
+  const loadId = (previewLoadIds[index] || 0) + 1;
+  previewLoadIds[index] = loadId;
+
+  /** @type {HTMLElement | null} */
+  const container = document.getElementById(`preview-container-${index}`);
+  if (!container) return;
+
+  if (!rawInput) {
+    container.innerHTML = '<span style="color: #a1a1aa;">No preview available</span>';
+    return;
+  }
+
+  container.innerHTML = '<span style="color: #8b5cf6;">Loading preview...</span>';
+
+  /** @type {string} */
+  const safeUrl = buildSafeUrl(ASSETS_PATH || envDataObj.ASSETS_PATH || '../web/assets/', rawInput);
+
+  if (safeUrl === 'about:blank') {
+    container.innerHTML = '<span style="color: #f43f5e;">Security block: Invalid path</span>';
+    return;
+  }
+
+  /**
+   * @param {HTMLElement} el
+   * @returns {void}
+   */
+  const finalize = (el) => {
+    if (previewLoadIds[index] === loadId) {
+      container.innerHTML = '';
+      container.appendChild(el);
+    }
+  };
+
+  if (type === 'image') {
+    /** @type {HTMLImageElement} */
+    const img = new Image();
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'contain';
+    img.style.pointerEvents = 'none';
+    img.onload = () => finalize(img);
+    img.onerror = () => {
+      if (previewLoadIds[index] === loadId) {
+        container.innerHTML = '<span style="color: #f43f5e;">Failed to load image</span>';
+      }
+    };
+    img.src = safeUrl;
+  } else if (type === 'video') {
+    /** @type {HTMLVideoElement} */
+    const vid = document.createElement('video');
+    vid.style.width = '100%';
+    vid.style.height = '100%';
+    vid.style.objectFit = 'contain';
+    vid.style.pointerEvents = 'none';
+    vid.muted = true;
+    vid.autoplay = true;
+    vid.loop = true;
+    vid.oncanplay = () => finalize(vid);
+    vid.onerror = () => {
+      if (previewLoadIds[index] === loadId) {
+        container.innerHTML = '<span style="color: #f43f5e;">Failed to load video</span>';
+      }
+    };
+    vid.src = safeUrl;
+  } else if (type === 'web') {
+    /** @type {HTMLIFrameElement} */
+    const iframe = document.createElement('iframe');
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = 'none';
+    iframe.style.pointerEvents = 'none';
+
+    // Strict sandbox: only allows scripts for visual rendering.
+    // Removed 'allow-same-origin' to prevent local file reading and parent context access.
+    iframe.sandbox.add('allow-scripts');
+
+    iframe.onload = () => finalize(iframe);
+    iframe.onerror = () => {
+      if (previewLoadIds[index] === loadId) {
+        container.innerHTML = '<span style="color: #f43f5e;">Failed to load web content</span>';
+      }
+    };
+    iframe.src = safeUrl;
   }
 };
 
@@ -136,7 +268,7 @@ const renderEnvForm = () => {
 
     /** @type {HTMLElement} */
     const label = document.createElement('label');
-    label.innerText = key;
+    label.innerText = envLabels[key] || key;
 
     /** @type {HTMLInputElement} */
     const input = document.createElement('input');
@@ -154,6 +286,12 @@ const renderEnvForm = () => {
       const target = /** @type {HTMLInputElement} */ (e.target);
       envDataObj[key] = target.value;
       validateEnvInput(target, key);
+
+      if (key === 'ASSETS_PATH') {
+        wallpapersList.forEach((wp, index) => {
+          if (wp.file) updatePreview(index, wp.file, wp.type || 'image');
+        });
+      }
     });
 
     group.appendChild(label);
@@ -185,18 +323,22 @@ const renderWallpapers = () => {
     card.setAttribute('ondrop', `handleDrop(${i}, event)`);
     card.setAttribute('ondragenter', `handleDragEnter(event)`);
     card.setAttribute('ondragleave', `handleDragLeave(event)`);
-    card.style.transition = 'border 0.2s';
     card.style.cursor = 'grab';
 
     /** @type {string} */
     const html = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <strong style="color: #89b4fa; font-size: 1.2em;">#${i + 1}</strong>
+        <strong style="color: #8b5cf6; font-size: 1.2em;">#${i + 1}</strong>
         <div>
           <button class="secondary-btn" style="padding: 2px 8px; margin-right: 5px;" onclick="moveWp(${i}, -1)" ${i === 0 ? 'disabled' : ''}>▲</button>
           <button class="secondary-btn" style="padding: 2px 8px;" onclick="moveWp(${i}, 1)" ${i === wallpapersList.length - 1 ? 'disabled' : ''}>▼</button>
         </div>
       </div>
+
+      <div id="preview-container-${i}" style="margin-bottom: 15px; height: 160px; background: rgba(9, 9, 11, 0.6); border: 1px solid var(--card-border-color); border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
+        <span style="color: #a1a1aa;">No preview available</span>
+      </div>
+
       <div class="input-group">
         <label>File / URL</label>
         <input type="text" value="${wp.file || ''}" oninput="validateWpInput(this, 'file')" onchange="updateWp(${i}, 'file', this.value, 'string')">
@@ -204,7 +346,7 @@ const renderWallpapers = () => {
       <div style="display: flex; gap: 10px; margin-bottom: 10px;">
         <div class="input-group" style="flex: 1;">
           <label>Type</label>
-          <select onchange="updateWp(${i}, 'type', this.value, 'string')" style="padding: 5px; background: #1e1e2e; color: #fff; border: 1px solid #45475a; border-radius: 4px;">
+          <select onchange="updateWp(${i}, 'type', this.value, 'string')" style="padding: 8px; background: rgba(9, 9, 11, 0.6); color: var(--text-color); border: 1px solid var(--card-border-color); border-radius: 6px;">
             <option value="image" ${wp.type === 'image' ? 'selected' : ''}>Image</option>
             <option value="video" ${wp.type === 'video' ? 'selected' : ''}>Video</option>
             <option value="web" ${wp.type === 'web' ? 'selected' : ''}>Web</option>
@@ -238,10 +380,10 @@ const renderWallpapers = () => {
       ${
         wp.type === 'video'
           ? `
-      <div style="display: flex; gap: 10px; margin-top: 10px; background: #181825; padding: 10px; border-radius: 4px;">
+      <div style="display: flex; gap: 10px; margin-top: 10px; background: rgba(9, 9, 11, 0.3); padding: 10px; border-radius: 6px;">
         <div class="input-group" style="flex: 1;">
           <label>Muted</label>
-          <select onchange="updateWp(${i}, 'muted', this.value, 'boolean')" style="padding: 5px; background: #1e1e2e; color: #fff; border: 1px solid #45475a; border-radius: 4px;">
+          <select onchange="updateWp(${i}, 'muted', this.value, 'boolean')" style="padding: 8px; background: rgba(9, 9, 11, 0.6); color: var(--text-color); border: 1px solid var(--card-border-color); border-radius: 6px;">
             <option value="true" ${wp.muted !== false ? 'selected' : ''}>True</option>
             <option value="false" ${wp.muted === false ? 'selected' : ''}>False</option>
           </select>
@@ -260,17 +402,22 @@ const renderWallpapers = () => {
     `;
     card.innerHTML = html;
 
+    list.appendChild(card);
+
     // Quick validation on load to ensure existing data is visually correct
     setTimeout(() => {
       /** @type {NodeListOf<HTMLInputElement>} */
       const inputs = card.querySelectorAll('input');
       inputs.forEach((input) => {
+        /** @type {string | undefined} */
         const key = input.getAttribute('oninput')?.match(/'([^']+)'/)?.[1];
         if (key) window.validateWpInput(input, key);
       });
-    }, 0);
 
-    list.appendChild(card);
+      if (wp.file) {
+        updatePreview(i, wp.file, wp.type || 'image');
+      }
+    }, 0);
   }
 };
 
@@ -285,6 +432,7 @@ window.updateWp = (index, key, value, typeFormat) => {
   if (value === '' || value === 'default') {
     delete wallpapersList[index][key];
     if (key === 'type') renderWallpapers();
+    if (key === 'file') updatePreview(index, '', wallpapersList[index].type);
     return;
   }
 
@@ -301,6 +449,8 @@ window.updateWp = (index, key, value, typeFormat) => {
 
   if (key === 'type') {
     renderWallpapers();
+  } else if (key === 'file') {
+    updatePreview(index, finalValue, wallpapersList[index].type || 'image');
   }
 };
 
@@ -355,7 +505,7 @@ window.handleDragEnter = (event) => {
   event.preventDefault();
   /** @type {HTMLElement} */
   const target = /** @type {HTMLElement} */ (event.currentTarget);
-  target.style.borderColor = '#89b4fa';
+  target.style.borderColor = '#8b5cf6';
   target.style.borderStyle = 'dashed';
 };
 
@@ -366,7 +516,7 @@ window.handleDragEnter = (event) => {
 window.handleDragLeave = (event) => {
   /** @type {HTMLElement} */
   const target = /** @type {HTMLElement} */ (event.currentTarget);
-  target.style.borderColor = '#45475a';
+  target.style.borderColor = '#27272a';
   target.style.borderStyle = 'solid';
 };
 
@@ -399,7 +549,9 @@ const initApp = async () => {
   /** @type {any} */
   const config = await window.electronAPI.loadConfig();
   if (config) {
+    ASSETS_PATH = config.ASSETS_PATH;
     envDataObj = parseEnv(config.env);
+
     wallpapersList = config.wallpapers || [];
     renderEnvForm();
     renderWallpapers();

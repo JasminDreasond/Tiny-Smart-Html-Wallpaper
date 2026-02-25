@@ -49,6 +49,7 @@
       "preload.js",
       "build.js",
       "gui/**/*",
+      "global/**/*",
       "web/src/**/*",
       "node_modules/**/*"
     ],

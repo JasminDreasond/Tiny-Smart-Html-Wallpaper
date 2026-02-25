@@ -6,11 +6,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { runBuild } from './build.js';
 import { configFolderName } from './folders.js';
+import { parseEnv } from './global/utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-let workDir;
-let execDir;
+let workDir = '';
+let execDir = '';
 
 /**
  * @returns {void}
@@ -104,8 +105,20 @@ ipcMain.handle('load-config', async () => {
     const envData = await readFile(envFile, 'utf-8');
     /** @type {string} */
     const wpData = await readFile(wpFile, 'utf-8');
+    let ASSETS_PATH = path.join(`${workDir}${!workDir.trim().endsWith('/') ? '/' : ''}`);
+    const env = parseEnv(envData);
+
+    ASSETS_PATH = path.join(ASSETS_PATH, configFolderName, 'dist');
+    if (
+      typeof env.ASSETS_PATH === 'string' &&
+      (env.ASSETS_PATH.startsWith('../') ||
+        env.ASSETS_PATH.startsWith('./') ||
+        env.ASSETS_PATH.startsWith('/'))
+    )
+      ASSETS_PATH = path.join(ASSETS_PATH, env.ASSETS_PATH);
 
     return {
+      ASSETS_PATH,
       env: envData,
       wallpapers: JSON.parse(wpData),
     };
