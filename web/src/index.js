@@ -281,6 +281,8 @@ const updateWallpaper = () => {
   }
 };
 
+window.updateWallpaper = updateWallpaper;
+
 /**
  * @returns {void}
  */
