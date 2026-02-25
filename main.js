@@ -14,6 +14,34 @@ let workDir = '';
 let execDir = '';
 
 /**
+ * @param {string} envData
+ * @returns {string}
+ */
+const getAssetsPath = (envData) => {
+  let ASSETS_PATH = path.join(`${workDir}${!workDir.trim().endsWith('/') ? '/' : ''}`);
+  const env = parseEnv(envData);
+
+  ASSETS_PATH = path.join(ASSETS_PATH, configFolderName, 'dist');
+  if (
+    typeof env.ASSETS_PATH === 'string' &&
+    (env.ASSETS_PATH.startsWith('../') ||
+      env.ASSETS_PATH.startsWith('./') ||
+      env.ASSETS_PATH.startsWith('/'))
+  )
+    ASSETS_PATH = path.join(ASSETS_PATH, env.ASSETS_PATH);
+
+  return ASSETS_PATH;
+};
+
+const getCfgs = () => {
+  const cfgFolder = path.join(workDir, configFolderName);
+  const envFile = path.join(cfgFolder, '.env');
+  const wpFile = path.join(cfgFolder, 'wallpapers.json');
+
+  return { cfgFolder, envFile, wpFile };
+};
+
+/**
  * @returns {void}
  */
 const setupWorkingDirectory = () => {
@@ -74,10 +102,7 @@ app.on('window-all-closed', () => {
 
 ipcMain.handle('load-config', async () => {
   try {
-    const cfgFolder = path.join(workDir, configFolderName);
-    const envFile = path.join(cfgFolder, '.env');
-    const wpFile = path.join(cfgFolder, 'wallpapers.json');
-
+    const { envFile, wpFile } = getCfgs();
     /** @type {boolean} */
     const envExists = existsSync(envFile);
 
@@ -105,20 +130,9 @@ ipcMain.handle('load-config', async () => {
     const envData = await readFile(envFile, 'utf-8');
     /** @type {string} */
     const wpData = await readFile(wpFile, 'utf-8');
-    let ASSETS_PATH = path.join(`${workDir}${!workDir.trim().endsWith('/') ? '/' : ''}`);
-    const env = parseEnv(envData);
-
-    ASSETS_PATH = path.join(ASSETS_PATH, configFolderName, 'dist');
-    if (
-      typeof env.ASSETS_PATH === 'string' &&
-      (env.ASSETS_PATH.startsWith('../') ||
-        env.ASSETS_PATH.startsWith('./') ||
-        env.ASSETS_PATH.startsWith('/'))
-    )
-      ASSETS_PATH = path.join(ASSETS_PATH, env.ASSETS_PATH);
 
     return {
-      ASSETS_PATH,
+      ASSETS_PATH: getAssetsPath(envData),
       env: envData,
       wallpapers: JSON.parse(wpData),
     };
@@ -130,15 +144,10 @@ ipcMain.handle('load-config', async () => {
 
 ipcMain.handle('save-and-build', async (event, data) => {
   try {
-    const cfgFolder = path.join(workDir, configFolderName);
-    const envFile = path.join(cfgFolder, '.env');
-    const srcFolder = path.join(cfgFolder, '/src/');
+    const { envFile, cfgFolder, wpFile } = getCfgs();
 
     await writeFile(envFile, data.env);
-    await writeFile(
-      path.join(cfgFolder, 'wallpapers.json'),
-      JSON.stringify(data.wallpapers, null, 2),
-    );
+    await writeFile(wpFile, JSON.stringify(data.wallpapers, null, 2));
 
     const esbuild = await import(
       app.isPackaged
