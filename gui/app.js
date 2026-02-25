@@ -10,6 +10,11 @@ let draggedIndex = null;
 const previewLoadIds = {};
 let ASSETS_PATH = '';
 
+/** @type {"inline"|"single"} */
+let previewMode = 'inline';
+/** @type {number} */
+let activePreviewIndex = 0;
+
 /** * @typedef {Object} EnvSchemaRule
  * @property {string} placeholder
  * @property {(val: string) => boolean} validate
@@ -80,6 +85,49 @@ const wpSchema = {
   animation: (v) => true,
   volume: (v) => v === '' || (!isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 1),
   nextOnEnd: (v) => true,
+};
+
+/**
+ * @param {string} mode
+ * @returns {void}
+ */
+window.togglePreviewMode = (mode) => {
+  previewMode = /** @type {"inline"|"single"} */ (mode);
+  renderWallpapers();
+};
+
+/**
+ * @param {number} index
+ * @returns {void}
+ */
+const setActivePreview = (index) => {
+  if (previewMode !== 'single') return;
+  if (activePreviewIndex === index) return;
+
+  activePreviewIndex = index;
+
+  /** @type {NodeListOf<HTMLElement>} */
+  const cards = document.querySelectorAll('#wallpapers-list .card');
+  cards.forEach((card, i) => {
+    if (i === index) {
+      card.style.borderColor = '#8b5cf6';
+      card.style.boxShadow = '0 0 0 1px rgba(139, 92, 246, 0.5)';
+    } else {
+      card.style.borderColor = 'var(--card-border-color)';
+      card.style.boxShadow = 'none';
+    }
+  });
+
+  /** @type {any} */
+  const wp = wallpapersList[index];
+  if (wp && wp.file) {
+    updatePreview(index, wp.file, wp.type || 'image');
+  } else {
+    /** @type {HTMLElement | null} */
+    const container = document.getElementById('single-preview-container');
+    if (container)
+      container.innerHTML = '<span style="color: #a1a1aa;">No preview available</span>';
+  }
 };
 
 /**
@@ -158,12 +206,17 @@ window.validateWpInput = (input, key) => {
  * @returns {void}
  */
 const updatePreview = (index, rawInput, type) => {
+  if (previewMode === 'single' && index !== activePreviewIndex) return;
+
   /** @type {number} */
   const loadId = (previewLoadIds[index] || 0) + 1;
   previewLoadIds[index] = loadId;
 
+  /** @type {string} */
+  const containerId =
+    previewMode === 'single' ? 'single-preview-container' : `preview-container-${index}`;
   /** @type {HTMLElement | null} */
-  const container = document.getElementById(`preview-container-${index}`);
+  const container = document.getElementById(containerId);
   if (!container) return;
 
   if (!rawInput) {
@@ -250,9 +303,18 @@ const refreshAllWallpapers = async () => {
   const config = await window.electronAPI.loadConfig();
   ASSETS_PATH = config.ASSETS_PATH ?? '';
   if (!config) return;
-  wallpapersList.forEach((wp, index) => {
-    if (wp.file) updatePreview(index, wp.file, wp.type || 'image');
-  });
+
+  if (previewMode === 'inline') {
+    wallpapersList.forEach((wp, index) => {
+      if (wp.file) updatePreview(index, wp.file, wp.type || 'image');
+    });
+  } else {
+    if (activePreviewIndex >= 0 && activePreviewIndex < wallpapersList.length) {
+      /** @type {any} */
+      const wp = wallpapersList[activePreviewIndex];
+      if (wp && wp.file) updatePreview(activePreviewIndex, wp.file, wp.type || 'image');
+    }
+  }
 };
 
 /**
@@ -293,6 +355,20 @@ const renderEnvForm = () => {
       const target = /** @type {HTMLInputElement} */ (e.target);
       envDataObj[key] = target.value;
       validateEnvInput(target, key);
+
+      if (key === 'ASSETS_PATH') {
+        if (previewMode === 'inline') {
+          wallpapersList.forEach((wp, index) => {
+            if (wp.file) updatePreview(index, wp.file, wp.type || 'image');
+          });
+        } else {
+          if (activePreviewIndex >= 0 && activePreviewIndex < wallpapersList.length) {
+            /** @type {any} */
+            const wp = wallpapersList[activePreviewIndex];
+            if (wp && wp.file) updatePreview(activePreviewIndex, wp.file, wp.type || 'image');
+          }
+        }
+      }
     });
 
     group.appendChild(label);
@@ -311,6 +387,21 @@ const renderWallpapers = () => {
 
   list.innerHTML = '';
 
+  if (previewMode === 'single') {
+    /** @type {HTMLElement} */
+    const stickyPreview = document.createElement('div');
+    stickyPreview.id = 'single-preview-container';
+    // Position Sticky applied directly as a sibling to the cards so it sticks the entire length of the list!
+    stickyPreview.style.cssText =
+      'height: 220px; background: rgba(9, 9, 11, 0.95); border: 1px solid #8b5cf6; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: sticky; top: 0px; z-index: 100; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(12px);';
+    stickyPreview.innerHTML = '<span style="color: #a1a1aa;">No preview available</span>';
+    list.appendChild(stickyPreview);
+  }
+
+  if (activePreviewIndex >= wallpapersList.length) {
+    activePreviewIndex = Math.max(0, wallpapersList.length - 1);
+  }
+
   for (let i = 0; i < wallpapersList.length; i++) {
     /** @type {any} */
     const wp = wallpapersList[i];
@@ -325,6 +416,15 @@ const renderWallpapers = () => {
     card.setAttribute('ondragenter', `handleDragEnter(event)`);
     card.setAttribute('ondragleave', `handleDragLeave(event)`);
     card.style.cursor = 'grab';
+
+    if (previewMode === 'single') {
+      if (i === activePreviewIndex) {
+        card.style.borderColor = '#8b5cf6';
+        card.style.boxShadow = '0 0 0 1px rgba(139, 92, 246, 0.5)';
+      }
+      card.addEventListener('focusin', () => setActivePreview(i));
+      card.addEventListener('click', () => setActivePreview(i));
+    }
 
     // Disable dragging when hovering/clicking on interactive inputs
     card.addEventListener('mousedown', (e) => {
@@ -343,6 +443,16 @@ const renderWallpapers = () => {
     });
 
     /** @type {string} */
+    const inlinePreviewHtml =
+      previewMode === 'inline'
+        ? `
+      <div id="preview-container-${i}" style="margin-bottom: 15px; height: 160px; background: rgba(9, 9, 11, 0.6); border: 1px solid var(--card-border-color); border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
+        <span style="color: #a1a1aa;">No preview available</span>
+      </div>
+    `
+        : '';
+
+    /** @type {string} */
     const html = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <strong style="color: #8b5cf6; font-size: 1.2em;">#${i + 1}</strong>
@@ -352,9 +462,7 @@ const renderWallpapers = () => {
         </div>
       </div>
 
-      <div id="preview-container-${i}" style="margin-bottom: 15px; height: 160px; background: rgba(9, 9, 11, 0.6); border: 1px solid var(--card-border-color); border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
-        <span style="color: #a1a1aa;">No preview available</span>
-      </div>
+      ${inlinePreviewHtml}
 
       <div class="input-group">
         <label>File / URL</label>
@@ -447,11 +555,25 @@ const renderWallpapers = () => {
         if (key) window.validateWpInput(input, key);
       });
 
-      if (wp.file) {
-        updatePreview(i, wp.file, wp.type || 'image');
+      if (previewMode === 'inline') {
+        if (wp.file) {
+          updatePreview(i, wp.file, wp.type || 'image');
+        }
       }
     }, 0);
   }
+
+  setTimeout(() => {
+    if (previewMode === 'single') {
+      if (activePreviewIndex >= 0 && activePreviewIndex < wallpapersList.length) {
+        /** @type {any} */
+        const activeWp = wallpapersList[activePreviewIndex];
+        if (activeWp && activeWp.file) {
+          updatePreview(activePreviewIndex, activeWp.file, activeWp.type || 'image');
+        }
+      }
+    }
+  }, 0);
 };
 
 /**
@@ -587,6 +709,18 @@ const initApp = async () => {
     renderEnvForm();
     renderWallpapers();
   }
+
+    /** @type {HTMLElement} */
+  const topControls = document.createElement('div');
+  topControls.style.marginBottom = '15px';
+  topControls.innerHTML = `
+    <label style="color: var(--label-color); font-size: 0.9em; margin-right: 5px; font-weight: bold;">Preview Mode:</label>
+    <select onchange="window.togglePreviewMode(this.value)" style="padding: 6px 10px; background: rgba(9, 9, 11, 0.6); color: var(--text-color); border: 1px solid var(--card-border-color); border-radius: 6px; cursor: pointer;">
+      <option value="inline" ${previewMode === 'inline' ? 'selected' : ''}>Inline</option>
+      <option value="single" ${previewMode === 'single' ? 'selected' : ''}>Top (Sticky)</option>
+    </select>
+  `;
+  document.getElementById('top-list')?.appendChild(topControls);
 
   document.getElementById('btn-add-wp')?.addEventListener('click', () => {
     wallpapersList.push({ file: 'new_media.jpg', type: 'image' });
