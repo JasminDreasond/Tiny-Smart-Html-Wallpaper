@@ -48,7 +48,10 @@ const envSchema = {
     placeholder: 'true | false',
     validate: (v) => ['true', 'false'].includes(v),
   },
-  ASSETS_PATH: { placeholder: '../web/assets/ or /absolute/path/', validate: (v) => v.length > 0 },
+  ASSETS_PATH: {
+    placeholder: '../web/assets/ or /absolute/path/',
+    validate: (v) => v.length > 0 && (v.endsWith('/') || v.endsWith('\\')),
+  },
 };
 
 /** @type {Record<string, string>} */
