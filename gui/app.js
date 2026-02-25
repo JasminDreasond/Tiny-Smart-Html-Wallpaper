@@ -88,7 +88,6 @@ const buildSafeUrl = (basePath, input) => {
   let cleanInput = input.trim();
 
   if (!cleanInput) return '';
-
   if (/%00|\u0000/i.test(cleanInput)) return 'about:blank';
 
   try {
@@ -100,14 +99,8 @@ const buildSafeUrl = (basePath, input) => {
     return 'about:blank';
   }
 
-  if (/^https?:\/\//i.test(cleanInput)) {
-    return input.trim();
-  }
-
-  if (/^[a-z0-9]+:/i.test(cleanInput)) {
-    return 'about:blank';
-  }
-
+  if (/^https?:\/\//i.test(cleanInput)) return input.trim();
+  if (/^[a-z0-9]+:/i.test(cleanInput)) return 'about:blank';
   if (/^[\/\\]|^[a-zA-Z]:[\/\\]/.test(cleanInput)) return 'about:blank';
 
   /** @type {string[]} */
@@ -324,6 +317,22 @@ const renderWallpapers = () => {
     card.setAttribute('ondragenter', `handleDragEnter(event)`);
     card.setAttribute('ondragleave', `handleDragLeave(event)`);
     card.style.cursor = 'grab';
+
+    // Disable dragging when hovering/clicking on interactive inputs
+    card.addEventListener('mousedown', (e) => {
+      /** @type {HTMLElement} */
+      const target = /** @type {HTMLElement} */ (e.target);
+      /** @type {string} */
+      const tag = target.tagName;
+
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'BUTTON' || tag === 'LABEL') {
+        card.draggable = false;
+        card.style.cursor = 'default';
+      } else {
+        card.draggable = true;
+        card.style.cursor = 'grab';
+      }
+    });
 
     /** @type {string} */
     const html = `
@@ -551,7 +560,6 @@ const initApp = async () => {
   if (config) {
     ASSETS_PATH = config.ASSETS_PATH;
     envDataObj = parseEnv(config.env);
-
     wallpapersList = config.wallpapers || [];
     renderEnvForm();
     renderWallpapers();
