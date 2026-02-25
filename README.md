@@ -93,7 +93,10 @@ We want to ensure your dynamic wallpapers run perfectly! Currently, this project
 
 ## Enjoy your new dynamic desktop!
 
-<center><img src="./web/example.png" alt="example"></center>
+<center>
+<img src="./web/example.png" alt="example">
+<a href="https://www.deviantart.com/underpable/art/Night-Sky-516020072">Nightmare Moon source</a>
+</center>
 
 ---
 
