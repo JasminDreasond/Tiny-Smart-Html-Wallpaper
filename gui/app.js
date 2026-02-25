@@ -122,8 +122,8 @@ const setActivePreview = (index) => {
 
   /** @type {any} */
   const wp = wallpapersList[index];
-  if (wp && wp.file) {
-    updatePreview(index, wp.file, wp.type || 'image');
+  if (wp) {
+    updatePreview(index, wp.file || '', wp.type || 'image');
   } else {
     /** @type {HTMLElement | null} */
     const container = document.getElementById('single-preview-container');
@@ -221,6 +221,14 @@ const updatePreview = (index, rawInput, type) => {
   const container = document.getElementById(containerId);
   if (!container) return;
 
+  if (type === 'web') {
+    if (previewMode === 'single') {
+      container.innerHTML =
+        '<span style="color: #f43f5e; font-weight: bold;">Previews are not available for Web items</span>';
+    }
+    return;
+  }
+
   if (!rawInput) {
     container.innerHTML = '<span style="color: #a1a1aa;">No preview available</span>';
     return;
@@ -278,26 +286,6 @@ const updatePreview = (index, rawInput, type) => {
       }
     };
     vid.src = safeUrl;
-  } else if (type === 'web') {
-    /** @type {HTMLIFrameElement} */
-    const iframe = document.createElement('iframe');
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    iframe.style.border = 'none';
-    iframe.style.pointerEvents = 'none';
-
-    // Strict sandbox: only allows scripts for visual rendering.
-    // Removed 'allow-same-origin' to prevent local file reading and parent context access.
-    iframe.sandbox.add('allow-scripts');
-    iframe.sandbox.remove('allow-same-origin');
-
-    iframe.onload = () => finalize(iframe);
-    iframe.onerror = () => {
-      if (previewLoadIds[index] === loadId) {
-        container.innerHTML = '<span style="color: #f43f5e;">Failed to load web content</span>';
-      }
-    };
-    iframe.src = safeUrl;
   }
 };
 
@@ -309,13 +297,13 @@ const refreshAllWallpapers = async () => {
 
   if (previewMode === 'inline') {
     wallpapersList.forEach((wp, index) => {
-      if (wp.file) updatePreview(index, wp.file, wp.type || 'image');
+      if (wp) updatePreview(index, wp.file || '', wp.type || 'image');
     });
   } else {
     if (activePreviewIndex >= 0 && activePreviewIndex < wallpapersList.length) {
       /** @type {any} */
       const wp = wallpapersList[activePreviewIndex];
-      if (wp && wp.file) updatePreview(activePreviewIndex, wp.file, wp.type || 'image');
+      if (wp) updatePreview(activePreviewIndex, wp.file || '', wp.type || 'image');
     }
   }
 };
@@ -362,13 +350,13 @@ const renderEnvForm = () => {
       if (key === 'ASSETS_PATH') {
         if (previewMode === 'inline') {
           wallpapersList.forEach((wp, index) => {
-            if (wp.file) updatePreview(index, wp.file, wp.type || 'image');
+            if (wp) updatePreview(index, wp.file || '', wp.type || 'image');
           });
         } else {
           if (activePreviewIndex >= 0 && activePreviewIndex < wallpapersList.length) {
             /** @type {any} */
             const wp = wallpapersList[activePreviewIndex];
-            if (wp && wp.file) updatePreview(activePreviewIndex, wp.file, wp.type || 'image');
+            if (wp) updatePreview(activePreviewIndex, wp.file || '', wp.type || 'image');
           }
         }
       }
@@ -396,7 +384,7 @@ const renderWallpapers = () => {
     stickyPreview.id = 'single-preview-container';
     // Position Sticky applied directly as a sibling to the cards so it sticks the entire length of the list!
     stickyPreview.style.cssText =
-      'height: 220px; background: rgba(9, 9, 11, 0.95); border: 1px solid #8b5cf6; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: sticky; top: 0px; z-index: 100; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(12px);';
+      'height: 220px; background: rgba(9, 9, 11, 0.95); border: 1px solid #8b5cf6; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: sticky; top: 0px; z-index: 100; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(12px); text-align: center;';
     stickyPreview.innerHTML = '<span style="color: #a1a1aa;">No preview available</span>';
     list.appendChild(stickyPreview);
   }
@@ -447,7 +435,7 @@ const renderWallpapers = () => {
 
     /** @type {string} */
     const inlinePreviewHtml =
-      previewMode === 'inline'
+      previewMode === 'inline' && wp.type !== 'web'
         ? `
       <div id="preview-container-${i}" style="margin-bottom: 15px; height: 160px; background: rgba(9, 9, 11, 0.6); border: 1px solid var(--card-border-color); border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
         <span style="color: #a1a1aa;">No preview available</span>
@@ -559,8 +547,8 @@ const renderWallpapers = () => {
       });
 
       if (previewMode === 'inline') {
-        if (wp.file) {
-          updatePreview(i, wp.file, wp.type || 'image');
+        if (wp) {
+          updatePreview(i, wp.file || '', wp.type || 'image');
         }
       }
     }, 0);
@@ -571,8 +559,8 @@ const renderWallpapers = () => {
       if (activePreviewIndex >= 0 && activePreviewIndex < wallpapersList.length) {
         /** @type {any} */
         const activeWp = wallpapersList[activePreviewIndex];
-        if (activeWp && activeWp.file) {
-          updatePreview(activePreviewIndex, activeWp.file, activeWp.type || 'image');
+        if (activeWp) {
+          updatePreview(activePreviewIndex, activeWp.file || '', activeWp.type || 'image');
         }
       }
     }
@@ -590,7 +578,7 @@ window.updateWp = (index, key, value, typeFormat) => {
   if (value === '' || value === 'default') {
     delete wallpapersList[index][key];
     if (key === 'type') renderWallpapers();
-    if (key === 'file') updatePreview(index, '', wallpapersList[index].type);
+    if (key === 'file') updatePreview(index, '', wallpapersList[index].type || 'image');
     return;
   }
 
