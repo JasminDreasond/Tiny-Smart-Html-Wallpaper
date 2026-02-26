@@ -92,6 +92,20 @@ const createWindow = async () => {
     });
 
   await win.loadFile('gui/index.html');
+
+  ipcMain.on('toggle-fullscreen', () => {
+    if (win) {
+      /** @type {boolean} */
+      const isFullScreen = win.isFullScreen();
+      win.setFullScreen(!isFullScreen);
+    }
+  });
+
+  ipcMain.on('exit-fullscreen', () => {
+    if (win) {
+      win.setFullScreen(false);
+    }
+  });
 };
 
 setupWorkingDirectory();

@@ -16,6 +16,9 @@ let previewMode =
 /** @type {number} */
 let activePreviewIndex = 0;
 
+/** @type {number} */
+let overlayZoom = 1;
+
 /** * @typedef {Object} EnvSchemaRule
  * @property {string} placeholder
  * @property {(val: string) => boolean} validate
@@ -130,6 +133,111 @@ const setActivePreview = (index) => {
     if (container)
       container.innerHTML = '<span style="color: #a1a1aa;">No preview available</span>';
   }
+};
+
+/**
+ * @param {string} url
+ * @param {string} type
+ * @returns {void}
+ */
+const openFullscreenPreview = (url, type) => {
+  /** @type {HTMLElement | null} */
+  let overlay = document.getElementById('media-overlay');
+
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'media-overlay';
+    overlay.style.cssText =
+      'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);';
+    document.body.appendChild(overlay);
+  }
+
+  overlayZoom = 1;
+  overlay.innerHTML = '';
+
+  /** @type {HTMLElement} */
+  const mediaContainer = document.createElement('div');
+  mediaContainer.style.cssText =
+    'width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;';
+
+  /** @type {HTMLElement} */
+  let mediaEl;
+
+  if (type === 'image') {
+    mediaEl = new Image();
+    /** @type {HTMLImageElement} */ (mediaEl).src = url;
+  } else {
+    mediaEl = document.createElement('video');
+    /** @type {HTMLVideoElement} */ (mediaEl).src = url;
+    /** @type {HTMLVideoElement} */ (mediaEl).autoplay = true;
+    /** @type {HTMLVideoElement} */ (mediaEl).loop = true;
+    /** @type {HTMLVideoElement} */ (mediaEl).muted = true;
+  }
+
+  mediaEl.style.cssText =
+    'max-width: 100%; max-height: 100%; object-fit: contain; transition: transform 0.2s ease-out;';
+  mediaContainer.appendChild(mediaEl);
+
+  /** @type {HTMLElement} */
+  const sideMenu = document.createElement('div');
+  sideMenu.style.cssText =
+    'position: absolute; right: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; background: rgba(9, 9, 11, 0.8); padding: 15px; border-radius: 8px; border: 1px solid #8b5cf6; box-shadow: 0 4px 15px rgba(0,0,0,0.5);';
+
+  /** @type {HTMLButtonElement} */
+  const btnZoomIn = document.createElement('button');
+  btnZoomIn.className = 'secondary-btn';
+  btnZoomIn.innerText = '🔍 Zoom In';
+  btnZoomIn.onclick = () => {
+    overlayZoom += 0.2;
+    mediaEl.style.transform = `scale(${overlayZoom})`;
+  };
+
+  /** @type {HTMLButtonElement} */
+  const btnZoomOut = document.createElement('button');
+  btnZoomOut.className = 'secondary-btn';
+  btnZoomOut.innerText = '🔍 Zoom Out';
+  btnZoomOut.onclick = () => {
+    overlayZoom = Math.max(0.2, overlayZoom - 0.2);
+    mediaEl.style.transform = `scale(${overlayZoom})`;
+  };
+
+  /** @type {HTMLButtonElement} */
+  const btnReset = document.createElement('button');
+  btnReset.className = 'secondary-btn';
+  btnReset.innerText = '🔄 Reset';
+  btnReset.onclick = () => {
+    overlayZoom = 1;
+    mediaEl.style.transform = `scale(${overlayZoom})`;
+  };
+
+  /** @type {HTMLButtonElement} */
+  const btnOsFullscreen = document.createElement('button');
+  btnOsFullscreen.className = 'secondary-btn';
+  btnOsFullscreen.innerText = '🖥️ OS Fullscreen';
+  btnOsFullscreen.onclick = () => {
+    if (window.electronAPI && window.electronAPI.toggleFullscreen) {
+      window.electronAPI.toggleFullscreen();
+    }
+  };
+
+  /** @type {HTMLButtonElement} */
+  const btnClose = document.createElement('button');
+  btnClose.className = 'danger-btn';
+  btnClose.style.marginTop = '10px';
+  btnClose.innerText = '❌ Close';
+  btnClose.onclick = () => {
+    /** @type {HTMLElement} */ (overlay).style.display = 'none';
+    if (type === 'video') /** @type {HTMLVideoElement} */ (mediaEl).src = '';
+
+    if (window.electronAPI && window.electronAPI.exitFullscreen) {
+      window.electronAPI.exitFullscreen();
+    }
+  };
+
+  sideMenu.append(btnZoomIn, btnZoomOut, btnReset, btnOsFullscreen, btnClose);
+  overlay.append(mediaContainer, sideMenu);
+
+  overlay.style.display = 'flex';
 };
 
 /**
@@ -261,7 +369,9 @@ const updatePreview = (index, rawInput, type) => {
     img.style.width = '100%';
     img.style.height = '100%';
     img.style.objectFit = 'contain';
-    img.style.pointerEvents = 'none';
+    img.style.cursor = 'zoom-in';
+    img.style.pointerEvents = 'auto';
+    img.onclick = () => openFullscreenPreview(safeUrl, 'image');
     img.onload = () => finalize(img);
     img.onerror = () => {
       if (previewLoadIds[index] === loadId) {
@@ -275,7 +385,9 @@ const updatePreview = (index, rawInput, type) => {
     vid.style.width = '100%';
     vid.style.height = '100%';
     vid.style.objectFit = 'contain';
-    vid.style.pointerEvents = 'none';
+    vid.style.cursor = 'zoom-in';
+    vid.style.pointerEvents = 'auto';
+    vid.onclick = () => openFullscreenPreview(safeUrl, 'video');
     vid.muted = true;
     vid.autoplay = true;
     vid.loop = true;
@@ -424,7 +536,14 @@ const renderWallpapers = () => {
       /** @type {string} */
       const tag = target.tagName;
 
-      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'BUTTON' || tag === 'LABEL') {
+      if (
+        tag === 'INPUT' ||
+        tag === 'SELECT' ||
+        tag === 'BUTTON' ||
+        tag === 'LABEL' ||
+        tag === 'IMG' ||
+        tag === 'VIDEO'
+      ) {
         card.draggable = false;
         card.style.cursor = 'default';
       } else {
