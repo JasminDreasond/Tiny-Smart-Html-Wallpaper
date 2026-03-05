@@ -1,6 +1,6 @@
 {
   "name": "smart-html-wallpaper-engine",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "repository": "https://github.com/Tiny-Essentials/Tiny-Smart-Html-Wallpaper.git",
   "bugs": {
     "url": "https://github.com/Tiny-Essentials/Tiny-Smart-Html-Wallpaper/issues"
@@ -23,13 +23,14 @@
     "start": "electron .",
     "build:web": "node build.js",
     "build:app": "electron-builder --linux --win",
-    "prettier": "prettier --write ./web/src/* && prettier --write ./gui/* && prettier --write ./build.js && prettier --write ./main.js && prettier --write ./preload.js && prettier --write ./folders.js"
+    "fix:prettier": "prettier --write ./web/src/* && prettier --write ./gui/* && prettier --write ./build.js && prettier --write ./main.js && prettier --write ./preload.js && prettier --write ./folders.js"
   },
   "dependencies": {
     "dotenv": "^17.3.1",
     "esbuild": "^0.27.3",
     "esbuild-wasm": "^0.27.3",
-    "prettier": "^3.8.1"
+    "prettier": "^3.8.1",
+    "tiny-electron-essentials": "^1.0.2"
   },
   "devDependencies": {
     "electron": "^29.0.0",
@@ -49,6 +50,7 @@
       "preload.js",
       "build.js",
       "gui/**/*",
+      "favicon/**/*",
       "global/**/*",
       "web/src/**/*",
       "node_modules/**/*"

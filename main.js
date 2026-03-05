@@ -1,9 +1,12 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
-import { platform } from 'os';
+import { app, ipcMain } from 'electron';
 import { readFile, writeFile, copyFile } from 'fs/promises';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+import { TinyElectronRoot } from 'tiny-electron-essentials/main';
+import { RootEvents } from 'tiny-electron-essentials/global';
+
 import { runBuild } from './build.js';
 import { configFolderName } from './folders.js';
 import { parseEnv } from './global/utils.js';
@@ -12,6 +15,24 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 let workDir = '';
 let execDir = '';
+
+// Start Electron root
+const root = new TinyElectronRoot({
+  minimizeOnClose: false,
+  pathBase: path.join(__dirname, 'gui'),
+  iconFolder: path.join(__dirname, 'favicon'),
+  icon: 'icon',
+  appId: 'smart-html-wallpaper-engine',
+  appDataName: 'smart-html-wallpaper-engine',
+  title: 'Smart Html Wallpaper Configurator',
+});
+
+// Fix windows OS
+root.installWinProtection();
+
+root.initAppDataDir();
+const tempFolder = root.initAppDataDir('temp');
+const initFile = path.join(tempFolder, 'init.json');
 
 /**
  * @param {string} envData
@@ -69,51 +90,43 @@ const setupWorkingDirectory = () => {
  * @returns {Promise<void>}
  */
 const createWindow = async () => {
-  const icon = path.join(__dirname, 'favicon/icon.png');
-
-  /** @type {BrowserWindow} */
-  const win = new BrowserWindow({
-    width: 1000,
-    height: 800,
-    backgroundColor: '#1e1e2e',
-    icon,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true,
-      nodeIntegration: false,
+  const win = root.createWindow({
+    config: {
+      width: 1000,
+      height: 800,
+      backgroundColor: '#1e1e2e',
+      icon: root.getIcon(),
+      webPreferences: {
+        preload: path.join(__dirname, 'preload.js'),
+        contextIsolation: true,
+        nodeIntegration: false,
+      },
     },
+    fileId: initFile,
+    isMain: true,
   });
 
-  if (platform() === 'win32')
-    win.setAppDetails({
-      appId: 'smart-html-wallpaper-engine',
-      appIconPath: icon,
-      relaunchDisplayName: 'Smart Html Wallpaper Configurator',
-    });
-
-  await win.loadFile('gui/index.html');
+  win.loadPath('index.html');
 
   ipcMain.on('toggle-fullscreen', () => {
     if (win) {
       /** @type {boolean} */
-      const isFullScreen = win.isFullScreen();
-      win.setFullScreen(!isFullScreen);
+      const isFullScreen = win.getWin().isFullScreen();
+      win.getWin().setFullScreen(!isFullScreen);
     }
   });
 
   ipcMain.on('exit-fullscreen', () => {
     if (win) {
-      win.setFullScreen(false);
+      win.getWin().setFullScreen(false);
     }
   });
 };
 
 setupWorkingDirectory();
-app.whenReady().then(createWindow);
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
-});
+// Ready to first window
+root.on(RootEvents.CreateFirstWindow, createWindow);
 
 ipcMain.handle('load-config', async () => {
   try {
@@ -185,3 +198,6 @@ ipcMain.handle('save-and-build', async (event, data) => {
     return { success: false, error: String(error) };
   }
 });
+
+// Init app
+root.init();
