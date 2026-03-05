@@ -33,7 +33,7 @@
     "tiny-electron-essentials": "^1.0.2"
   },
   "devDependencies": {
-    "electron": "^29.0.0",
+    "electron": "^40.7.0",
     "electron-builder": "^24.13.3"
   },
   "build": {
