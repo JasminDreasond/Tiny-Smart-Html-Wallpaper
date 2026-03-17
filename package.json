@@ -1,11 +1,11 @@
 {
   "name": "smart-html-wallpaper-engine",
   "version": "1.1.2",
-  "repository": "https://github.com/Tiny-Essentials/Tiny-Smart-Html-Wallpaper.git",
+  "repository": "https://github.com/JasminDreasond/Tiny-Smart-Html-Wallpaper.git",
   "bugs": {
-    "url": "https://github.com/Tiny-Essentials/Tiny-Smart-Html-Wallpaper/issues"
+    "url": "https://github.com/JasminDreasond/Tiny-Smart-Html-Wallpaper/issues"
   },
-  "homepage": "https://github.com/Tiny-Essentials/Tiny-Smart-Html-Wallpaper#readme",
+  "homepage": "https://github.com/JasminDreasond/Tiny-Smart-Html-Wallpaper#readme",
   "description": "A smart html wallpaper engine and configurator.",
   "author": "Yasmin Seidel (JasminDreasond)",
   "type": "module",
