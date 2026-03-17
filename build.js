@@ -37,7 +37,7 @@ export const runBuild = async (root = './', es = esbuild, srcFolder = './web/src
       'process.env.ANIMATE_FIRST_LOAD': JSON.stringify(process.env.ANIMATE_FIRST_LOAD),
       'process.env.FIXED_CLOCK_INTERVAL': JSON.stringify(process.env.FIXED_CLOCK_INTERVAL),
       'process.env.ON_LIST_CHANGE_ONLY': JSON.stringify(process.env.ON_LIST_CHANGE_ONLY),
-      'process.env.ASSETS_PATH': JSON.stringify(process.env.ASSETS_PATH || '../web/assets/'),
+      'process.env.ASSETS_PATH': JSON.stringify(process.env.ASSETS_PATH || '../assets/'),
       __WALLPAPERS__: wallpapersData,
     },
   });

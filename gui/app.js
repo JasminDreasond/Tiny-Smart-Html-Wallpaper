@@ -58,7 +58,7 @@ const envSchema = {
     validate: (v) => ['true', 'false'].includes(v),
   },
   ASSETS_PATH: {
-    placeholder: '../web/assets/ or /absolute/path/',
+    placeholder: '../assets/ or /absolute/path/',
     validate: (v) => v.length > 0 && (v.endsWith('/') || v.endsWith('\\')),
   },
 };
@@ -345,7 +345,7 @@ const updatePreview = (index, rawInput, type) => {
   container.innerHTML = '<span style="color: #8b5cf6;">Loading preview...</span>';
 
   /** @type {string} */
-  const safeUrl = buildSafeUrl(ASSETS_PATH || envDataObj.ASSETS_PATH || '../web/assets/', rawInput);
+  const safeUrl = buildSafeUrl(ASSETS_PATH || envDataObj.ASSETS_PATH || '../assets/', rawInput);
 
   if (safeUrl === 'about:blank') {
     container.innerHTML = '<span style="color: #f43f5e;">Security block: Invalid path</span>';
@@ -431,7 +431,7 @@ const renderEnvForm = () => {
   form.innerHTML = '';
 
   // Ensure ASSETS_PATH exists in UI
-  if (!envDataObj.ASSETS_PATH) envDataObj.ASSETS_PATH = '../web/assets/';
+  if (!envDataObj.ASSETS_PATH) envDataObj.ASSETS_PATH = '../assets/';
 
   for (const [key, value] of Object.entries(envDataObj)) {
     /** @type {HTMLElement} */

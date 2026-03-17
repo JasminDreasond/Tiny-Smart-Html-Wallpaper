@@ -162,7 +162,7 @@ const createMediaElement = (wp) => {
   /** @type {string} */
   const displayMode = wp.display || process.env.DEFAULT_DISPLAY;
   /** @type {string} */
-  const basePath = process.env.ASSETS_PATH || '../web/assets/';
+  const basePath = process.env.ASSETS_PATH || '../assets/';
   /** @type {string} */
   const source = wp.type === 'web' ? wp.file : `${basePath}${wp.file}`;
 
