@@ -1,4 +1,4 @@
-import { app, ipcMain } from 'electron';
+import { app, ipcMain, dialog } from 'electron';
 import { readFile, writeFile, copyFile } from 'fs/promises';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
@@ -10,6 +10,7 @@ import { RootEvents } from 'tiny-electron-essentials/global';
 import { runBuild } from './build.js';
 import { configFolderName } from './folders.js';
 import { parseEnv } from './global/utils.js';
+import { ensureDirectoryExists } from './global/folderUtils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,9 +59,10 @@ const getCfgs = () => {
   const cfgFolder = path.join(workDir, configFolderName);
   const envFile = path.join(cfgFolder, '.env');
   const wpFile = path.join(cfgFolder, 'wallpapers.json');
+  const defaultAssets = path.join(cfgFolder, '/assets/');
   const srcFolder = path.join(cfgFolder, '/src/');
 
-  return { cfgFolder, envFile, wpFile, srcFolder };
+  return { cfgFolder, envFile, wpFile, srcFolder, defaultAssets };
 };
 
 /**
@@ -129,8 +131,11 @@ setupWorkingDirectory();
 root.on(RootEvents.CreateFirstWindow, createWindow);
 
 ipcMain.handle('load-config', async () => {
+  const { envFile, wpFile, defaultAssets } = getCfgs();
+  let currentTarget = '';
+
   try {
-    const { envFile, wpFile } = getCfgs();
+    currentTarget = envFile;
     /** @type {boolean} */
     const envExists = existsSync(envFile);
 
@@ -142,18 +147,27 @@ ipcMain.handle('load-config', async () => {
 
       if (exampleExists) {
         await copyFile(examplePath, envFile);
+        const exampleFile = (await readFile(envFile, 'utf-8'))
+          .replace('# ASSETS_PATH="../web/assets/"', 'ASSETS_PATH="../assets/"')
+          .replace('#ASSETS_PATH="../web/assets/"', 'ASSETS_PATH="../assets/"');
+        await writeFile(envFile, exampleFile);
       } else {
         console.warn('example.env not found! Creating an empty .env file.');
         await writeFile(envFile, '');
       }
     }
 
+    currentTarget = wpFile;
     /** @type {boolean} */
     const wpExists = existsSync(wpFile);
     if (!wpExists) {
       await writeFile(wpFile, '[]');
     }
 
+    currentTarget = defaultAssets;
+    await ensureDirectoryExists(defaultAssets);
+
+    currentTarget = 'Config Files (Reading)';
     /** @type {string} */
     const envData = await readFile(envFile, 'utf-8');
     /** @type {string} */
@@ -165,7 +179,12 @@ ipcMain.handle('load-config', async () => {
       wallpapers: JSON.parse(wpData),
     };
   } catch (error) {
-    console.error('Error reading or creating configs:', error);
+    console.error('Error handling default configs:', error);
+    dialog.showErrorBox(
+      'Initialization Error',
+      `Failed to create or access necessary default files.\n\nTarget: ${currentTarget}\nError: ${String(error)}\n\nThe application will be closed.`,
+    );
+    app.exit(1);
     return null;
   }
 });
