@@ -136,11 +136,12 @@ const setActivePreview = (index) => {
 };
 
 /**
+ * @param {number} index
  * @param {string} url
  * @param {string} type
  * @returns {void}
  */
-const openFullscreenPreview = (url, type) => {
+const openFullscreenPreview = (index, url, type) => {
   /** @type {HTMLElement | null} */
   let overlay = document.getElementById('media-overlay');
 
@@ -155,6 +156,11 @@ const openFullscreenPreview = (url, type) => {
   overlayZoom = 1;
   overlay.innerHTML = '';
 
+  /** @type {any} */
+  const wp = wallpapersList[index] || {};
+  /** @type {string} */
+  const displayMode = wp.display || envDataObj.DEFAULT_DISPLAY || 'scaled_cropped';
+
   /** @type {HTMLElement} */
   const mediaContainer = document.createElement('div');
   mediaContainer.style.cssText =
@@ -164,24 +170,31 @@ const openFullscreenPreview = (url, type) => {
   let mediaEl;
 
   if (type === 'image') {
-    mediaEl = new Image();
-    /** @type {HTMLImageElement} */ (mediaEl).src = url;
+    mediaEl = document.createElement('div');
+    mediaEl.style.backgroundImage = `url("${url}")`;
+    mediaEl.style.backgroundSize = 'contain';
+    mediaEl.style.backgroundPosition = 'center';
+    mediaEl.style.backgroundRepeat = 'no-repeat';
+    mediaEl.style.width = '100%';
+    mediaEl.style.height = '100%';
   } else {
     mediaEl = document.createElement('video');
     /** @type {HTMLVideoElement} */ (mediaEl).src = url;
     /** @type {HTMLVideoElement} */ (mediaEl).autoplay = true;
     /** @type {HTMLVideoElement} */ (mediaEl).loop = true;
     /** @type {HTMLVideoElement} */ (mediaEl).muted = true;
+    mediaEl.style.width = '100%';
+    mediaEl.style.height = '100%';
+    mediaEl.style.objectFit = 'contain';
   }
 
-  mediaEl.style.cssText =
-    'max-width: 100%; max-height: 100%; object-fit: contain; transition: transform 0.2s ease-out;';
+  mediaEl.style.transition = 'transform 0.2s ease-out';
   mediaContainer.appendChild(mediaEl);
 
   /** @type {HTMLElement} */
   const sideMenu = document.createElement('div');
   sideMenu.style.cssText =
-    'position: absolute; right: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; background: rgba(9, 9, 11, 0.8); padding: 15px; border-radius: 8px; border: 1px solid #8b5cf6; box-shadow: 0 4px 15px rgba(0,0,0,0.5);';
+    'position: absolute; right: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; background: rgba(9, 9, 11, 0.8); padding: 15px; border-radius: 8px; border: 1px solid #8b5cf6; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: opacity 0.3s;';
 
   /** @type {HTMLButtonElement} */
   const btnZoomIn = document.createElement('button');
@@ -210,6 +223,9 @@ const openFullscreenPreview = (url, type) => {
     mediaEl.style.transform = `scale(${overlayZoom})`;
   };
 
+  /** @type {boolean} */
+  let isOsFullscreen = false;
+
   /** @type {HTMLButtonElement} */
   const btnOsFullscreen = document.createElement('button');
   btnOsFullscreen.className = 'secondary-btn';
@@ -217,6 +233,40 @@ const openFullscreenPreview = (url, type) => {
   btnOsFullscreen.onclick = () => {
     if (window.electronAPI && window.electronAPI.toggleFullscreen) {
       window.electronAPI.toggleFullscreen();
+      isOsFullscreen = !isOsFullscreen;
+
+      if (isOsFullscreen) {
+        if (type === 'video') mediaEl.style.objectFit = '';
+        if (type === 'image') {
+          mediaEl.style.backgroundSize = '';
+          mediaEl.style.backgroundPosition = '';
+          mediaEl.style.backgroundRepeat = '';
+        }
+
+        mediaEl.className = `media-layer display-${displayMode}`;
+        sideMenu.style.opacity = '0.1';
+
+        sideMenu.onmouseenter = () => {
+          sideMenu.style.opacity = '1';
+        };
+        sideMenu.onmouseleave = () => {
+          sideMenu.style.opacity = '0.1';
+        };
+        btnOsFullscreen.innerText = '🖥️ Exit OS Fullscreen';
+      } else {
+        mediaEl.className = '';
+        if (type === 'video') mediaEl.style.objectFit = 'contain';
+        if (type === 'image') {
+          mediaEl.style.backgroundSize = 'contain';
+          mediaEl.style.backgroundPosition = 'center';
+          mediaEl.style.backgroundRepeat = 'no-repeat';
+        }
+        sideMenu.style.opacity = '1';
+
+        sideMenu.onmouseenter = null;
+        sideMenu.onmouseleave = null;
+        btnOsFullscreen.innerText = '🖥️ OS Fullscreen';
+      }
     }
   };
 
@@ -225,11 +275,29 @@ const openFullscreenPreview = (url, type) => {
   btnClose.className = 'danger-btn';
   btnClose.style.marginTop = '10px';
   btnClose.innerText = '❌ Close';
+
+  /**
+   * @param {KeyboardEvent} e
+   * @returns {void}
+   */
+  const handleEsc = (e) => {
+    if (e.key === 'Escape') {
+      if (isOsFullscreen) {
+        btnOsFullscreen.click();
+      } else {
+        btnClose.click();
+      }
+    }
+  };
+
+  document.addEventListener('keydown', handleEsc);
+
   btnClose.onclick = () => {
+    document.removeEventListener('keydown', handleEsc);
     /** @type {HTMLElement} */ (overlay).style.display = 'none';
     if (type === 'video') /** @type {HTMLVideoElement} */ (mediaEl).src = '';
 
-    if (window.electronAPI && window.electronAPI.exitFullscreen) {
+    if (isOsFullscreen && window.electronAPI && window.electronAPI.exitFullscreen) {
       window.electronAPI.exitFullscreen();
     }
   };
@@ -364,21 +432,27 @@ const updatePreview = (index, rawInput, type) => {
   };
 
   if (type === 'image') {
+    /** @type {HTMLDivElement} */
+    const imgDiv = document.createElement('div');
+    imgDiv.style.width = '100%';
+    imgDiv.style.height = '100%';
+    imgDiv.style.backgroundImage = `url("${safeUrl}")`;
+    imgDiv.style.backgroundSize = 'contain';
+    imgDiv.style.backgroundPosition = 'center';
+    imgDiv.style.backgroundRepeat = 'no-repeat';
+    imgDiv.style.cursor = 'zoom-in';
+    imgDiv.style.pointerEvents = 'auto';
+    imgDiv.onclick = () => openFullscreenPreview(index, safeUrl, 'image');
+
     /** @type {HTMLImageElement} */
-    const img = new Image();
-    img.style.width = '100%';
-    img.style.height = '100%';
-    img.style.objectFit = 'contain';
-    img.style.cursor = 'zoom-in';
-    img.style.pointerEvents = 'auto';
-    img.onclick = () => openFullscreenPreview(safeUrl, 'image');
-    img.onload = () => finalize(img);
-    img.onerror = () => {
+    const preloadImg = new Image();
+    preloadImg.onload = () => finalize(imgDiv);
+    preloadImg.onerror = () => {
       if (previewLoadIds[index] === loadId) {
         container.innerHTML = '<span style="color: #f43f5e;">Failed to load image</span>';
       }
     };
-    img.src = safeUrl;
+    preloadImg.src = safeUrl;
   } else if (type === 'video') {
     /** @type {HTMLVideoElement} */
     const vid = document.createElement('video');
@@ -387,7 +461,7 @@ const updatePreview = (index, rawInput, type) => {
     vid.style.objectFit = 'contain';
     vid.style.cursor = 'zoom-in';
     vid.style.pointerEvents = 'auto';
-    vid.onclick = () => openFullscreenPreview(safeUrl, 'video');
+    vid.onclick = () => openFullscreenPreview(index, safeUrl, 'video');
     vid.muted = true;
     vid.autoplay = true;
     vid.loop = true;
