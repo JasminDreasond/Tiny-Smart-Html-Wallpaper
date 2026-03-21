@@ -30,11 +30,11 @@
     "esbuild": "^0.27.3",
     "esbuild-wasm": "^0.27.3",
     "prettier": "^3.8.1",
-    "tiny-electron-essentials": "^1.0.2"
+    "tiny-electron-essentials": "^1.0.4"
   },
   "devDependencies": {
-    "electron": "^29.0.0",
-    "electron-builder": "^24.13.3"
+    "electron": "^41.0.3",
+    "electron-builder": "^26.8.1"
   },
   "build": {
     "appId": "com.jasmindreasond.smarthtmlwallpaper",
