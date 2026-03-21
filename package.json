@@ -22,7 +22,10 @@
   "scripts": {
     "start": "electron .",
     "build:web": "node build.js",
-    "build:app": "electron-builder --linux --win",
+    "build:win": "electron-builder --win --config electron-builder.js",
+    "build:linux:x11": "electron-builder --linux AppImage --config electron-builder.js",
+    "build:linux:wayland": "cross-env IS_WAYLAND=true electron-builder --linux AppImage --config electron-builder.js",
+    "build:app": "npm run build:win && npm run build:linux:x11 && npm run build:linux:wayland",
     "fix:prettier": "prettier --write ./web/src/* && prettier --write ./gui/* && prettier --write ./build.js && prettier --write ./main.js && prettier --write ./preload.js && prettier --write ./folders.js"
   },
   "dependencies": {
@@ -33,56 +36,8 @@
     "tiny-electron-essentials": "^1.0.4"
   },
   "devDependencies": {
-    "electron": "^41.0.3",
+    "cross-env": "^10.1.0",
+    "electron": "^37.10.3",
     "electron-builder": "^26.8.1"
-  },
-  "build": {
-    "appId": "com.jasmindreasond.smarthtmlwallpaper",
-    "productName": "Smart Html Wallpaper Configurator",
-    "directories": {
-      "output": "release/"
-    },
-    "files": [
-      "example.env",
-      "wallpapers-example.json",
-      "folders.js",
-      "main.js",
-      "preload.js",
-      "build.js",
-      "gui/**/*",
-      "favicon/**/*",
-      "global/**/*",
-      "web/src/**/*",
-      "node_modules/**/*"
-    ],
-    "asarUnpack": [
-      "node_modules/esbuild/**/*",
-      "node_modules/@esbuild/**/*",
-      "node_modules/esbuild-wasm/**/*"
-    ],
-    "mac": {
-      "category": "public.app-category.utilities",
-      "icon": "favicon/icon.icns",
-      "target": [
-        "dmg"
-      ]
-    },
-    "win": {
-      "icon": "favicon/icon.ico",
-      "target": [
-        "nsis"
-      ]
-    },
-    "linux": {
-      "icon": "favicon/icon.png",
-      "target": [
-        "AppImage"
-      ],
-      "category": "Utility"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
-    }
   }
 }

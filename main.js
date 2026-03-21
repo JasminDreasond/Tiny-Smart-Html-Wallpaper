@@ -220,3 +220,19 @@ ipcMain.handle('save-and-build', async (event, data) => {
 
 // Init app
 root.init();
+
+/**
+ * Configures Ozone flags for Wayland support if requested
+ * @param {string[]} argv
+ * @returns {void}
+ */
+const setupWaylandFlags = (argv) => {
+  if (process.env.IS_WAYLAND === 'true' || argv.includes('--wayland')) {
+    // Enable Wayland support and hardware acceleration
+    app.commandLine.appendSwitch('enable-features', 'UseOzonePlatform');
+    app.commandLine.appendSwitch('ozone-platform', 'wayland');
+    app.commandLine.appendSwitch('enable-gpu-rasterization');
+  }
+};
+
+setupWaylandFlags(process.argv);
