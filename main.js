@@ -12,6 +12,22 @@ import { configFolderName } from './folders.js';
 import { parseEnv } from './global/utils.js';
 import { ensureDirectoryExists } from './global/folderUtils.js';
 
+/**
+ * Configures Ozone flags for Wayland support if requested
+ * @param {string[]} argv
+ * @returns {void}
+ */
+const setupWaylandFlags = (argv) => {
+  if (process.env.IS_WAYLAND === 'true' || argv.includes('--wayland')) {
+    // Enable Wayland support and hardware acceleration
+    app.commandLine.appendSwitch('enable-features', 'UseOzonePlatform');
+    app.commandLine.appendSwitch('ozone-platform', 'wayland');
+    app.commandLine.appendSwitch('enable-gpu-rasterization');
+  }
+};
+
+setupWaylandFlags(process.argv);
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 let workDir = '';
@@ -220,19 +236,3 @@ ipcMain.handle('save-and-build', async (event, data) => {
 
 // Init app
 root.init();
-
-/**
- * Configures Ozone flags for Wayland support if requested
- * @param {string[]} argv
- * @returns {void}
- */
-const setupWaylandFlags = (argv) => {
-  if (process.env.IS_WAYLAND === 'true' || argv.includes('--wayland')) {
-    // Enable Wayland support and hardware acceleration
-    app.commandLine.appendSwitch('enable-features', 'UseOzonePlatform');
-    app.commandLine.appendSwitch('ozone-platform', 'wayland');
-    app.commandLine.appendSwitch('enable-gpu-rasterization');
-  }
-};
-
-setupWaylandFlags(process.argv);
