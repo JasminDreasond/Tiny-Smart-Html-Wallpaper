@@ -44,7 +44,7 @@ jobs:
           echo "tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Upload to latest release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.get_tag.outputs.tag }}
           # Specifies the output files from electron-builder to upload
