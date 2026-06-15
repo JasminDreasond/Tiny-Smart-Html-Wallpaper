@@ -11,6 +11,7 @@
   "type": "module",
   "main": "main.js",
   "license": "AGPL-3.0-only",
+  "ethereum": "jasmindreasond.x",
   "keywords": [
     "electronjs",
     "wallpaper-engine",
